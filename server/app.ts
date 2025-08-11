@@ -1,9 +1,11 @@
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import FUNDS, { type Fund } from './data/funds.ts';
 import type { Request, Response, NextFunction } from 'express';
 
 const app = express();
+app.use(cors());
 const port = 3000;
 
 app.use(bodyParser.json());
@@ -24,12 +26,11 @@ interface PortfolioItem {
 // In-memory portfolio
 let portfolio: PortfolioItem[] = [];
 
-
 // GET /funds - List with pagination
 app.get('/funds', (req: Request, res: Response) => {
   const funds = FUNDS;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
+  const page = parseInt(req.query.page as string) ?? 1;
+  const limit = parseInt(req.query.limit as string) ?? 10;
 
   if (page < 1 || limit < 1) {
     return res.status(400).json({ error: 'Invalid pagination parameters' });
@@ -46,7 +47,7 @@ app.get('/funds', (req: Request, res: Response) => {
       totalFunds: funds.length,
       totalPages: Math.ceil(funds.length / limit),
     },
-    data: paginatedFunds
+    data: paginatedFunds,
   });
 });
 
@@ -68,7 +69,7 @@ const fundRoute = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // GET /funds/:id - Fund details
-app.get('/funds/:id', fundRoute, (req: Request, res: Response) => res.json({ data: req.fund}));
+app.get('/funds/:id', fundRoute, (req: Request, res: Response) => res.json({ data: req.fund }));
 
 // POST /funds/:id/buy - Buy a fund
 app.post('/funds/:id/buy', fundRoute, (req: Request, res: Response) => {
@@ -152,7 +153,7 @@ app.get('/portfolio', (req: Request, res: Response) => {
       id: p.id,
       name: fund?.name,
       quantity: p.quantity,
-      totalValue: p.quantity * (fund?.value || 0)
+      totalValue: p.quantity * (fund?.value ?? 0)
     };
   });
   res.json({ data: detailedPortfolio });
