@@ -5,10 +5,10 @@ import FUNDS, { type Fund } from './data/funds.ts';
 import type { Request, Response, NextFunction } from 'express';
 
 const app = express();
-app.use(cors());
 const port = 3000;
 
 app.use(bodyParser.json());
+app.use(cors());
 
 declare global {
   namespace Express {
