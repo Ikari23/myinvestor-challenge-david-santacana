@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import FUNDS, { type Fund } from './data/funds.ts';
 import type { Request, Response, NextFunction } from 'express';
@@ -7,6 +8,7 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
+app.use(cors());
 
 declare global {
   namespace Express {
