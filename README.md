@@ -15,7 +15,6 @@ Esta prueba **no esta pensada para que sea terminada en el tiempo que indicamos*
 - Uso de **JavaScript moderno (ES6+)**
 - Se valorará positivamente el uso de TypeScript.
 - Manejo de estado (React Hooks, Context API, etc.)
-- Consumo de una API pública (por ejemplo: [https://jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), [https://pokeapi.co](https://pokeapi.co), etc.)
 - Diseño responsive (mobile-first)
 - Código limpio y bien estructurado
 - Añadir tests, ya sean unitarios o de extremo a extremo (E2E), también será considerada como un punto a favor.
