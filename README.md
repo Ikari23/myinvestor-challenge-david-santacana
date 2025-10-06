@@ -41,7 +41,7 @@ Esta prueba **no esta pensada para que sea terminada en el tiempo que indicamos*
 
 ## 🕒 Tiempo estimado
 
-Recomendamos no dedicar más de **2-3 horas** en total. Valoramos más la calidad del trabajo y el enfoque en los detalles que una solución completa.
+Recomendamos no dedicar más de **3-4 horas** en total. Valoramos más la calidad del trabajo y el enfoque en los detalles que una solución completa.
 
 ## 💡 Tips
 

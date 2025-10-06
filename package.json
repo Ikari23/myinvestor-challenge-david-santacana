@@ -1,5 +1,5 @@
 {
-  "name": "technical-test",
+  "name": "myinvestor-challenge",
   "version": "1.0.0",
   "license": "MIT",
   "description": "REST API for funds management with Express and TypeScript",
