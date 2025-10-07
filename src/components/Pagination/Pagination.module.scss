@@ -1,10 +1,15 @@
 .paginationContainer {
     display: flex;
     flex-direction: column;
-    gap: $spacing-4;
+    gap: $spacing-3;
     align-items: center;
-    padding: $spacing-4 0;
+    padding: $spacing-3 0;
     border-top: 1px solid $gray-200;
+
+    @media (min-width: $mobile) {
+        gap: $spacing-4;
+        padding: $spacing-4 0;
+    }
 
     @media (min-width: $tablet) {
         flex-direction: row;

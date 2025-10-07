@@ -1,6 +1,10 @@
 .tableContainer {
-    padding: $spacing-4;
+    padding: $spacing-2;
     background-color: white;
+
+    @media (min-width: $mobile) {
+        padding: $spacing-4;
+    }
 
     @media (min-width: $tablet) {
         padding: $spacing-6;
@@ -25,7 +29,6 @@
     border-radius: $border-radius-lg;
     box-shadow: $shadow-sm;
 
-    // Hide scrollbar for webkit browsers
     &::-webkit-scrollbar {
         height: 8px;
     }
@@ -46,9 +49,18 @@
 
 .table {
     width: 100%;
-    min-width: 800px;
+    min-width: 500px;
     border-collapse: collapse;
-    font-size: $font-size-sm;
+    font-size: 0.75rem;
+
+    @media (min-width: $mobile) {
+        min-width: 600px;
+        font-size: $font-size-sm;
+    }
+
+    @media (min-width: $tablet) {
+        min-width: 700px;
+    }
 
     @media (min-width: $desktop) {
         min-width: 100%;
@@ -57,7 +69,7 @@
 }
 
 .headerCell {
-    padding: $spacing-3 $spacing-2;
+    padding: $spacing-2 $spacing-1;
     background-color: $gray-50;
     border-bottom: 1px solid $gray-200;
     text-align: left;
@@ -65,12 +77,24 @@
     color: $gray-700;
     white-space: nowrap;
 
+    @media (min-width: $mobile) {
+        padding: $spacing-3 $spacing-2;
+    }
+
     &:first-child {
-        padding-left: $spacing-4;
+        padding-left: $spacing-2;
+
+        @media (min-width: $mobile) {
+            padding-left: $spacing-4;
+        }
     }
 
     &:last-child {
-        padding-right: $spacing-4;
+        padding-right: $spacing-2;
+
+        @media (min-width: $mobile) {
+            padding-right: $spacing-4;
+        }
     }
 
     @media (min-width: $tablet) {
@@ -145,17 +169,29 @@
 }
 
 .cell {
-    padding: $spacing-3 $spacing-2;
+    padding: $spacing-2 $spacing-1;
     color: $gray-700;
     white-space: nowrap;
     vertical-align: middle;
 
+    @media (min-width: $mobile) {
+        padding: $spacing-3 $spacing-2;
+    }
+
     &:first-child {
-        padding-left: $spacing-4;
+        padding-left: $spacing-2;
+
+        @media (min-width: $mobile) {
+            padding-left: $spacing-4;
+        }
     }
 
     &:last-child {
-        padding-right: $spacing-4;
+        padding-right: $spacing-2;
+
+        @media (min-width: $mobile) {
+            padding-right: $spacing-4;
+        }
     }
 
     @media (min-width: $tablet) {
@@ -221,9 +257,17 @@
 
 .header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: $spacing-4;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: $spacing-3;
+    gap: $spacing-2;
+
+    @media (min-width: $mobile) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: $spacing-4;
+    }
 
     @media (min-width: $tablet) {
         margin-bottom: $spacing-6;
@@ -285,7 +329,7 @@
 }
 
 .errorText {
-    color: #dc2626; // Red color
+    color: #dc2626;
     font-size: $font-size-base;
     margin: 0 0 $spacing-4 0;
     font-weight: $font-weight-medium;
@@ -303,7 +347,7 @@
     transition: background-color 0.15s ease;
 
     &:hover {
-        background-color: #2563eb; // Darker blue
+        background-color: #2563eb;
     }
 
     &:focus {
