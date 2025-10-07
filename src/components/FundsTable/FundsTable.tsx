@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { TableColumn } from '../../types';
 import { useTableSort } from '../../hooks/useTableSort';
 import { useFunds } from '../../hooks/useFunds';
+import { useFundsStore } from '../../stores/fundsStore';
 import { SortIcon } from '../SortIcon';
+import { Pagination } from '../Pagination';
 import styles from './FundsTable.module.scss';
 
 const tableColumns: TableColumn[] = [
@@ -22,7 +24,30 @@ const tableColumns: TableColumn[] = [
 
 export const FundsTable: React.FC = () => {
     const { funds, loading, error, totalFunds } = useFunds();
+    const {
+        localCurrentPage,
+        localItemsPerPage,
+        setLocalPagination
+    } = useFundsStore();
+
     const { sortState, sortedData, handleSort } = useTableSort(funds);
+
+    // Calculate pagination data
+    const paginatedData = useMemo(() => {
+        const startIndex = (localCurrentPage - 1) * localItemsPerPage;
+        const endIndex = startIndex + localItemsPerPage;
+        return sortedData.slice(startIndex, endIndex);
+    }, [sortedData, localCurrentPage, localItemsPerPage]);
+
+    const totalPages = Math.ceil(sortedData.length / localItemsPerPage);
+
+    const handlePageChange = (page: number) => {
+        setLocalPagination(page, localItemsPerPage);
+    };
+
+    const handleItemsPerPageChange = (itemsPerPage: number) => {
+        setLocalPagination(1, itemsPerPage); // Reset to first page when changing items per page
+    };
 
     if (loading) {
         return (
@@ -106,7 +131,7 @@ export const FundsTable: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedData.map((fund) => (
+                        {paginatedData.map((fund) => (
                             <tr key={fund.id} className={styles.row}>
                                 <td className={styles.cell}>
                                     <div className={styles.nameCell}>
@@ -136,6 +161,15 @@ export const FundsTable: React.FC = () => {
                     </tbody>
                 </table>
             </div>
+
+            <Pagination
+                currentPage={localCurrentPage}
+                totalPages={totalPages}
+                totalItems={sortedData.length}
+                itemsPerPage={localItemsPerPage}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+            />
         </div>
     );
 };

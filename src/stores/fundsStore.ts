@@ -9,6 +9,8 @@ interface FundsState {
     totalPages: number;
     totalFunds: number;
     limit: number;
+    localCurrentPage: number;
+    localItemsPerPage: number;
 
     setFunds: (funds: Fund[]) => void;
     setLoading: (loading: boolean) => void;
@@ -19,6 +21,7 @@ interface FundsState {
         totalFunds: number;
         limit: number;
     }) => void;
+    setLocalPagination: (page: number, itemsPerPage: number) => void;
     resetState: () => void;
 }
 
@@ -30,6 +33,8 @@ export const useFundsStore = create<FundsState>((set) => ({
     totalPages: 1,
     totalFunds: 0,
     limit: 20,
+    localCurrentPage: 1,
+    localItemsPerPage: 10,
 
     setFunds: (funds) => set({ funds }),
     setLoading: (loading) => set({ loading }),
@@ -40,6 +45,10 @@ export const useFundsStore = create<FundsState>((set) => ({
         totalFunds: pagination.totalFunds,
         limit: pagination.limit,
     }),
+    setLocalPagination: (page, itemsPerPage) => set({
+        localCurrentPage: page,
+        localItemsPerPage: itemsPerPage,
+    }),
     resetState: () => set({
         funds: [],
         loading: false,
@@ -48,5 +57,7 @@ export const useFundsStore = create<FundsState>((set) => ({
         totalPages: 1,
         totalFunds: 0,
         limit: 20,
+        localCurrentPage: 1,
+        localItemsPerPage: 10,
     }),
 }));

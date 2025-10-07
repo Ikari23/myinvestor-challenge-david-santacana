@@ -1,0 +1,138 @@
+.paginationContainer {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    align-items: center;
+    padding: $spacing-4 0;
+    border-top: 1px solid $gray-200;
+
+    @media (min-width: $tablet) {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: $spacing-6 0;
+    }
+}
+
+.itemsPerPage {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    order: 3;
+
+    @media (min-width: $tablet) {
+        order: 1;
+    }
+}
+
+.label {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    white-space: nowrap;
+}
+
+.select {
+    padding: $spacing-2 $spacing-3;
+    border: 1px solid $gray-300;
+    border-radius: $border-radius;
+    font-size: $font-size-sm;
+    background-color: white;
+    cursor: pointer;
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+        border-color: $primary-blue;
+    }
+}
+
+.pageInfo {
+    order: 1;
+
+    @media (min-width: $tablet) {
+        order: 2;
+    }
+}
+
+.pageText {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    font-weight: $font-weight-medium;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    order: 2;
+
+    @media (min-width: $tablet) {
+        order: 3;
+    }
+}
+
+.navButton,
+.pageButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: $spacing-2;
+    border: 1px solid $gray-300;
+    background-color: white;
+    color: $gray-700;
+    font-size: $font-size-sm;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+        background-color: $gray-50;
+        border-color: $gray-400;
+    }
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (min-width: $tablet) {
+        min-width: 36px;
+        height: 36px;
+    }
+}
+
+.pageButton {
+    font-weight: $font-weight-medium;
+
+    &.active {
+        background-color: $primary-blue;
+        border-color: $primary-blue;
+        color: white;
+
+        &:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+    }
+}
+
+.ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    color: $gray-400;
+    font-size: $font-size-sm;
+
+    @media (min-width: $tablet) {
+        min-width: 36px;
+        height: 36px;
+    }
+}

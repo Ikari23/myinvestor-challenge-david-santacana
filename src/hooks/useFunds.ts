@@ -13,13 +13,11 @@ interface FundsApiResponse {
     data: Fund[];
 }
 
-export const useFunds = (page: number = 1, limit: number = 20) => {
+export const useFunds = () => {
     const {
         funds,
         loading,
         error,
-        currentPage,
-        totalPages,
         totalFunds,
         setFunds,
         setLoading,
@@ -27,21 +25,21 @@ export const useFunds = (page: number = 1, limit: number = 20) => {
         setPagination,
     } = useFundsStore();
 
-    const fetchFunds = async (pageNum: number, pageLimit: number) => {
+    const fetchAllFunds = async () => {
         try {
             setLoading(true);
             setError(null);
 
             const response = await axios.get<FundsApiResponse>(
-                `/api/funds?page=${pageNum}&limit=${pageLimit}`
+                `/api/funds?page=1&limit=1000`
             );
 
             setFunds(response.data.data);
             setPagination({
-                page: response.data.pagination.page,
-                totalPages: response.data.pagination.totalPages,
-                totalFunds: response.data.pagination.totalFunds,
-                limit: response.data.pagination.limit,
+                page: 1,
+                totalPages: 1,
+                totalFunds: response.data.data.length,
+                limit: response.data.data.length,
             });
         } catch (err) {
             let errorMessage = 'Error desconocido';
@@ -60,16 +58,14 @@ export const useFunds = (page: number = 1, limit: number = 20) => {
     };
 
     useEffect(() => {
-        fetchFunds(page, limit);
-    }, [page, limit]);
+        fetchAllFunds();
+    }, []);
 
     return {
         funds,
         loading,
         error,
-        currentPage,
-        totalPages,
         totalFunds,
-        refetch: () => fetchFunds(page, limit),
+        refetch: fetchAllFunds,
     };
 };
