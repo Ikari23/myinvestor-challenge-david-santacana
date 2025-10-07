@@ -2,16 +2,29 @@
   "name": "myinvestor-challenge",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "REST API for funds management with Express and TypeScript",
-  "main": "dist/app.js",
+  "description": "Full-stack funds management application with Express API and React frontend",
+  "main": "dist/server/app.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch 'server/app.ts'"
+    "dev": "vite",
+    "dev:server": "node --watch server/app.ts",
+    "dev:client": "vite",
+    "start": "node --watch server/app.ts",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "body-parser": "^2.2.0",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "zustand": "^4.5.5"
   },
   "engines": {
     "yarn": "^4.5.1",
@@ -23,11 +36,18 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.1",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
+    "@vitejs/plugin-react": "^4.3.2",
     "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.12",
     "prettier": "^3.6.2",
+    "sass": "^1.79.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vite": "^5.4.8"
   }
 }
