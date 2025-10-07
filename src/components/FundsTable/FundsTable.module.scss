@@ -68,6 +68,16 @@
     }
 }
 
+.tableCaption {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
 .headerCell {
     padding: $spacing-2 $spacing-1;
     background-color: $gray-50;

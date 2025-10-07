@@ -97,16 +97,40 @@ export const FundsTable: React.FC = () => {
             </div>
 
             <div className={styles.tableWrapper}>
-                <table className={styles.table}>
+                <table className={styles.table} role="table" aria-label="Tabla de fondos de inversión">
+                    <caption className={styles.tableCaption}>
+                        Listado de {totalFunds} fondos de inversión con información de rentabilidad y características
+                    </caption>
                     <thead>
-                        <tr>
-                            {tableColumns.map((column) => (
-                                <th key={column.key} className={styles.headerCell}>
+                        <tr role="row">
+                            {tableColumns.map((column, index) => (
+                                <th
+                                    key={column.key}
+                                    className={styles.headerCell}
+                                    scope="col"
+                                    role="columnheader"
+                                    aria-sort={
+                                        column.sortable && column.sortKey && sortState.column === column.sortKey
+                                            ? sortState.direction === 'asc'
+                                                ? 'ascending'
+                                                : sortState.direction === 'desc'
+                                                    ? 'descending'
+                                                    : 'none'
+                                            : column.sortable ? 'none' : undefined
+                                    }
+                                >
                                     {column.sortable && column.sortKey ? (
                                         <button
                                             className={styles.sortableHeader}
                                             onClick={() => handleSort(column.sortKey!)}
-                                            aria-label={`Ordenar por ${column.title}`}
+                                            aria-label={`${column.title}${column.subtitle ? ` (${column.subtitle})` : ''}. ${sortState.column === column.sortKey
+                                                ? sortState.direction === 'asc'
+                                                    ? 'Actualmente ordenado ascendente. Haz clic para ordenar descendente'
+                                                    : sortState.direction === 'desc'
+                                                        ? 'Actualmente ordenado descendente. Haz clic para quitar ordenación'
+                                                        : 'Haz clic para ordenar ascendente'
+                                                : 'Haz clic para ordenar ascendente'
+                                                }`}
                                         >
                                             <div className={styles.headerContent}>
                                                 <span className={styles.headerTitle}>{column.title}</span>
@@ -130,29 +154,51 @@ export const FundsTable: React.FC = () => {
                             ))}
                         </tr>
                     </thead>
-                    <tbody>
-                        {paginatedData.map((fund) => (
-                            <tr key={fund.id} className={styles.row}>
-                                <td className={styles.cell}>
+                    <tbody role="rowgroup">
+                        {paginatedData.map((fund, rowIndex) => (
+                            <tr key={fund.id} className={styles.row} role="row">
+                                <td className={styles.cell} role="gridcell">
                                     <div className={styles.nameCell}>
                                         <span className={styles.name}>{fund.name}</span>
-                                        <span className={styles.isin}>-</span>
+                                        <span className={styles.isin} aria-label="ISIN no disponible">-</span>
                                     </div>
                                 </td>
-                                <td className={styles.cell}>-</td>
-                                <td className={styles.cell}>{fund.currency}</td>
-                                <td className={styles.cell}>{fund.category}</td>
-                                <td className={styles.cell}>
-                                    {fund.value.toFixed(2)} {fund.currency}
+                                <td className={styles.cell} role="gridcell" aria-label="Tipo no disponible">-</td>
+                                <td className={styles.cell} role="gridcell">{fund.currency}</td>
+                                <td className={styles.cell} role="gridcell">{fund.category}</td>
+                                <td className={styles.cell} role="gridcell">
+                                    <span aria-label={`Valor liquidativo: ${fund.value.toFixed(2)} ${fund.currency}`}>
+                                        {fund.value.toFixed(2)} {fund.currency}
+                                    </span>
                                 </td>
-                                <td className={styles.cell}>{(fund.profitability.YTD * 100).toFixed(1)}%</td>
-                                <td className={styles.cell}>{(fund.profitability.oneYear * 100).toFixed(1)}%</td>
-                                <td className={styles.cell}>{(fund.profitability.threeYears * 100).toFixed(1)}%</td>
-                                <td className={styles.cell}>{(fund.profitability.fiveYears * 100).toFixed(1)}%</td>
-                                <td className={styles.cell}>-</td>
-                                <td className={styles.cell}>-</td>
-                                <td className={styles.cell}>
-                                    <button className={styles.actionButton} aria-label="Acciones">
+                                <td className={styles.cell} role="gridcell">
+                                    <span aria-label={`Rentabilidad 2025: ${(fund.profitability.YTD * 100).toFixed(1)} por ciento`}>
+                                        {(fund.profitability.YTD * 100).toFixed(1)}%
+                                    </span>
+                                </td>
+                                <td className={styles.cell} role="gridcell">
+                                    <span aria-label={`Rentabilidad 1 año: ${(fund.profitability.oneYear * 100).toFixed(1)} por ciento`}>
+                                        {(fund.profitability.oneYear * 100).toFixed(1)}%
+                                    </span>
+                                </td>
+                                <td className={styles.cell} role="gridcell">
+                                    <span aria-label={`Rentabilidad 3 años: ${(fund.profitability.threeYears * 100).toFixed(1)} por ciento`}>
+                                        {(fund.profitability.threeYears * 100).toFixed(1)}%
+                                    </span>
+                                </td>
+                                <td className={styles.cell} role="gridcell">
+                                    <span aria-label={`Rentabilidad 5 años: ${(fund.profitability.fiveYears * 100).toFixed(1)} por ciento`}>
+                                        {(fund.profitability.fiveYears * 100).toFixed(1)}%
+                                    </span>
+                                </td>
+                                <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
+                                <td className={styles.cell} role="gridcell" aria-label="Nivel de riesgo no disponible">-</td>
+                                <td className={styles.cell} role="gridcell">
+                                    <button
+                                        className={styles.actionButton}
+                                        aria-label={`Abrir menú de acciones para ${fund.name}`}
+                                        aria-haspopup="menu"
+                                    >
                                         ⋯
                                     </button>
                                 </td>
