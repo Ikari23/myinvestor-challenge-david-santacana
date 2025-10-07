@@ -175,8 +175,8 @@ export const FundsTable: React.FC = () => {
                                 <td className={styles.cell} role="gridcell">{fund.currency}</td>
                                 <td className={styles.cell} role="gridcell">{fund.category}</td>
                                 <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Valor liquidativo: ${fund.value.toFixed(2)} ${fund.currency}`}>
-                                        {fund.value.toFixed(2)} {fund.currency}
+                                    <span aria-label={`Valor liquidativo: ${fund.value.toFixed(2)}`}>
+                                        {fund.value.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
