@@ -11,7 +11,7 @@
 ### Instalación
 ```bash
 # Clonar el repositorio
-git clone <repository-url>
+git clone https://github.com/Ikari23/myinvestor-challenge-david-santacana
 cd myinvestor-challenge
 
 # Instalar dependencias
