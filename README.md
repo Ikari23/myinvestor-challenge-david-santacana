@@ -1,135 +1,94 @@
-# 🧪 Prueba Técnica - Desarrollador Front-end
+# Prueba Técnica MyInvestor — David Santacana Rubireta
 
-¡Gracias por tu interés en formar parte de nuestro equipo! Esta prueba técnica está diseñada para evaluar tus habilidades como desarrollador Front-end en aspectos como maquetación, consumo de APIs, buenas prácticas de código, y atención al detalle.
+> **Prueba Técnica Frontend** - Plataforma de gestión de fondos de inversión desarrollada con React, TypeScript y tecnologías modernas.
 
-## 🎯 Objetivo
+## Cómo ejecutar el proyecto
 
-La prueba consiste en desarrollar una solución en base a una propuesta inicial. No esperamos que se dedique una jornada completa a su realización; con aproximadamente 2 a 3 horas será suficiente para evaluar las capacidades principales.
+### Requisitos
+- **Node.js** ^24.5.0
+- **Yarn** ^4.5.1
 
-Esta prueba **no esta pensada para que sea terminada en el tiempo que indicamos**, solo queremos valorar tus conocimientos y aptitudes.
+### Instalación
+```bash
+# Clonar el repositorio
+git clone <repository-url>
+cd myinvestor-challenge
 
-## 🧰 Requisitos técnicos
+# Instalar dependencias
+yarn install
 
-- Utilizar **React** (con o sin frameworks como Next.js, Vite, etc.)
-- En cuanto a los estilos, puedes utilizar la tecnología o herramienta con la que te sientas más cómodo/a: CSS, SASS, Styled-components, Vanilla-extract, entre otros.
-- Uso de **JavaScript moderno (ES6+)**
-- Se valorará positivamente el uso de TypeScript.
-- Manejo de estado (React Hooks, Context API, etc.)
-- Diseño responsive (mobile-first)
-- Código limpio y bien estructurado
-- Añadir tests, ya sean unitarios o de extremo a extremo (E2E), también será considerada como un punto a favor.
+# Ejecutar el servidor API (terminal 1)
+yarn start
 
-## ✅ Criterios de evaluación
+# Ejecutar la aplicación React (terminal 2)
+yarn dev
+```
 
-- Organización y legibilidad del código
-- Uso adecuado de componentes
-- Manejo de estados y efectos
-- Buenas prácticas de desarrollo (semántica, accesibilidad, etc.)
-- Diseño responsive y visual atractivo
-- Funcionamiento general de la app
-- Uso de control de versiones (Git)
+### URLs disponibles
+- **Frontend**: http://localhost:5174
+- **API**: http://localhost:3000
 
-## 📦 Entregables
+### Scripts adicionales
+```bash
+yarn test           # Ejecutar tests unitarios
+yarn lint          # Linter ESLint
+yarn format        # Formatear código con Prettier
+yarn build         # Build de producción
+```
 
-1. Un repositorio en GitHub (público o privado con acceso compartido)
-2. Un archivo `README.md` explicando:
+## Decisiones Técnicas
 
-   - Cómo correr el proyecto localmente
-   - Decisiones técnicas tomadas
-   - Funcionalidades implementadas
-   - Qué mejorarías si tuvieras más tiempo
+### **Stack Tecnológico**
 
-## 🕒 Tiempo estimado
+**Frontend:**
+- **React 18** + **TypeScript** - Type safety y desarrollo moderno
+- **Vite** - Build tool rápido y eficiente para desarrollo
+- **SCSS con CSS Modules** - Encapsulación de estilos y variables reutilizables
+- **Zustand** - Estado global ligero y sin boilerplate
+- **Axios** - Cliente HTTP con mejor manejo de errores que fetch
 
-Recomendamos no dedicar más de **3-4 horas** en total. Valoramos más la calidad del trabajo y el enfoque en los detalles que una solución completa.
+**Código y Calidad:**
+- **ESLint + Prettier** - Linting y formateo automático
+- **Mobile-first SCSS** - Diseño responsive progresivo
 
-## 💡 Tips
+### **Arquitectura y Patrones**
 
-- Usa commits claros y descriptivos
-- No te preocupes por usar un diseño perfecto; enfócate en la funcionalidad y orden del código
-- Si usas librerías externas, justifica su uso
+1. **Separación de responsabilidades:**
+   - `components/` - Componentes reutilizables
+   - `hooks/` - Lógica de negocio reutilizable
+   - `stores/` - Estado global con Zustand
+   - `types/` - Definiciones TypeScript centralizadas
 
-## ⚙️ Setup
+2. **Composición de componentes:**
+   - Componentes pequeños y especializados
+   - Props tipadas estrictamente
+   - Hooks personalizados para lógica compleja
 
-- Node ^24.5.0
-- Yarn o NPM
+3. **Gestión de estado:**
+   - **Local**: useState/useEffect para UI específica
+   - **Global**: Zustand para datos compartidos (fondos, paginación)
+   - **Servidor**: Axios con manejo de estados (loading, error, success)
 
-## 📖 Recursos proporcionados:
+## Funcionalidades Implementadas
 
-Facilitamos una API con varios endpoints que podrás utilizar para completar la prueba.
-Puedes ver más información en este fichero [API.md](./API.md)
+### ** Listado de Fondos**
+- Tabla responsive con fondos obtenidos mediante API
+- Sorting bidireccional en columnas sorteables (ASC → DESC → None)
+- Paginación client-side
+- Menú de acciones dropdown con "Comprar" y "Ver detalle"
 
-## 📝 Tareas
+### **Accesibilidad (WCAG 2.1 AA)**
+- Estructura semántica
+- Estados de sorting con `aria-sort` dinámico
+- Labels descriptivos para lectores de pantalla
+- Navegación por teclado y focus management
 
-- Listado de fondos
-- Acción de comprar un fondo
-- Detalle de la cartera
-- Acción de vender un fondo
-- Acción de traspasar un fondo
+## 🚀 Mejoras con Más Tiempo
+A parte de las funcionalidades descritas en el archivo de Instructions.MD que han quedado pendientes de implementar.
 
-El orden de la ejecución de las tareas es importante.
-
-### Listado de fondos
-
-Genera un tabla en la que se muestren todos los fondos, similar a la que aparece en la imagen (No es necesario mostrar todas las columnas). Añadir la acciones que se pueden realizar para cada item.
-
-![list](./public/fund-list.png)
-
-![list actions](./public/fund-list-actions.png)
-
-💡 Bonus:
-
-- Paginación
-- Paginación
-- Ordenación de elementos al hacer click en la cabecera (ASC, DESC)
-- Diseño responsive
-
-### Acción de comprar
-
-Añadir la posibilidad de realizar una compra de un fondo desde el listado. En este caso no hay diseño, pero recomendamos hacer algo sencillo, pero que funcione.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - No poder realizar compras superiores a 10.000 €
-    - No poder realizar compras con valores negativos
-- Uso de la etiqueta [dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog) de HTML
-- Añadir un componente "input" que formateé la cantidad introducida. Por ejemplo "10,55 €".
-
-
-### Detalle de la cartera
-
-Generar una sección o pantalla, en la que se muestren todas la posiciones que tiene el usuario, similar a la que aparece en la imagen. Solo es necesario añadir el contenido de la pestaña "Fondos". Añadir la acciones que se pueden realizar para cada item.
-
-![portfolio](./public/portfolio-desktop.png)
-
-![portfolio action](./public/portfolio-desktop-actions.png)
-
-💡 Bonus:
-- Ordenación por orden alfabetico
-- Categorización por tipo de fondo
-- Diseño responsive
-- Añadir acciones en movil con "Swipe" en cada uno de los item ([iamge](./public/portfolio-mobile-actions.png))
-- Añadir un historico de ordenes al hacer click en la pestaña "Órdenes"
-
-### Acción de vender
-
-Añadir la posibilidad de realizar una venta de un fondo desde el listado.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - Limitar la venta por una cantidad superior a la posición
-    - No poder realizar ventas con valores negativos
-
-## Acción de traspasar
-
-Añadir la posibilidad de realizar una traspaso entre fondos.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - Limitar el traspaso por una cantidad superior a la posición
-    - No poder realizar traspasos con valores negativos
-    - No se puede traspasar al mismo fondo
-    - Solo se debe permitir traspasar entre fondos ya comprados.
+- Tests Unitarios de todos los componentes
+- Tests de Integración de hooks + API
+- Test E2E con Playwright
+- Substitución de Zustand por React QUERY
+- Adición de skeleton en la tabla durante la carga de datos
+- Mejoras en la visualización de datos, como en las columnas de rentabilidad para que se muestren correctamente los decimales

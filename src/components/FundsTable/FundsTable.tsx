@@ -181,22 +181,22 @@ export const FundsTable: React.FC = () => {
                                 </td>
                                 <td className={styles.cell} role="gridcell">
                                     <span aria-label={`Rentabilidad 2025: ${(fund.profitability.YTD * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.YTD * 100).toFixed(1)}%
+                                        {(fund.profitability.YTD * 100).toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
                                     <span aria-label={`Rentabilidad 1 año: ${(fund.profitability.oneYear * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.oneYear * 100).toFixed(1)}%
+                                        {(fund.profitability.oneYear * 100).toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
                                     <span aria-label={`Rentabilidad 3 años: ${(fund.profitability.threeYears * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.threeYears * 100).toFixed(1)}%
+                                        {(fund.profitability.threeYears * 100).toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
                                     <span aria-label={`Rentabilidad 5 años: ${(fund.profitability.fiveYears * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.fiveYears * 100).toFixed(1)}%
+                                        {(fund.profitability.fiveYears * 100).toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
