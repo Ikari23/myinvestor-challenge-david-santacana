@@ -25,12 +25,12 @@ yarn dev
 ```
 
 ### URLs disponibles
-- **Frontend**: http://localhost:5174
+- **Frontend**: http://localhost:5173
 - **API**: http://localhost:3000
 
 ### Scripts adicionales
 ```bash
-yarn test           # Ejecutar tests unitarios
+yarn test          # Ejecutar tests unitarios
 yarn lint          # Linter ESLint
 yarn format        # Formatear código con Prettier
 yarn build         # Build de producción
@@ -71,7 +71,7 @@ yarn build         # Build de producción
 
 ## Funcionalidades Implementadas
 
-### ** Listado de Fondos**
+### **Listado de Fondos**
 - Tabla responsive con fondos obtenidos mediante API
 - Sorting bidireccional en columnas sorteables (ASC → DESC → None)
 - Paginación client-side
@@ -83,7 +83,7 @@ yarn build         # Build de producción
 - Labels descriptivos para lectores de pantalla
 - Navegación por teclado y focus management
 
-## 🚀 Mejoras con Más Tiempo
+## Mejoras con Más Tiempo
 A parte de las funcionalidades descritas en el archivo de Instructions.MD que han quedado pendientes de implementar.
 
 - Tests Unitarios de todos los componentes
