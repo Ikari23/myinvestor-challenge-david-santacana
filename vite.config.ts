@@ -4,30 +4,30 @@ import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
+    plugins: [react()],
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, './src'),
+        },
     },
-  },
-  css: {
-    modules: {
-      localsConvention: 'camelCase',
+    css: {
+        modules: {
+            localsConvention: 'camelCase',
+        },
+        preprocessorOptions: {
+            scss: {
+                additionalData: `@import "@/styles/variables.scss";`,
+            },
+        },
     },
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "@/styles/variables.scss";`,
-      },
+    server: {
+        port: 5173,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3000',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ''),
+            },
+        },
     },
-  },
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
 })

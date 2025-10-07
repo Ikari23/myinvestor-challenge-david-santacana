@@ -1,0 +1,193 @@
+.tableContainer {
+    padding: $spacing-4;
+    background-color: white;
+
+    @media (min-width: $tablet) {
+        padding: $spacing-6;
+    }
+}
+
+.title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+    margin: 0 0 $spacing-4 0;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xl;
+        margin-bottom: $spacing-6;
+    }
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
+
+    // Hide scrollbar for webkit browsers
+    &::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $gray-100;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $gray-300;
+        border-radius: $border-radius;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: $gray-400;
+    }
+}
+
+.table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    font-size: $font-size-sm;
+
+    @media (min-width: $desktop) {
+        min-width: 100%;
+        font-size: $font-size-base;
+    }
+}
+
+.headerCell {
+    padding: $spacing-3 $spacing-2;
+    background-color: $gray-50;
+    border-bottom: 1px solid $gray-200;
+    text-align: left;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+    white-space: nowrap;
+
+    &:first-child {
+        padding-left: $spacing-4;
+    }
+
+    &:last-child {
+        padding-right: $spacing-4;
+    }
+
+    @media (min-width: $tablet) {
+        padding: $spacing-4 $spacing-3;
+    }
+}
+
+.headerContent {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+}
+
+.headerTitle {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-sm;
+    }
+}
+
+.headerSubtitle {
+    font-size: 0.625rem;
+    font-weight: $font-weight-normal;
+    color: $gray-500;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xs;
+    }
+}
+
+.row {
+    border-bottom: 1px solid $gray-100;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: $gray-50;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.cell {
+    padding: $spacing-3 $spacing-2;
+    color: $gray-700;
+    white-space: nowrap;
+    vertical-align: middle;
+
+    &:first-child {
+        padding-left: $spacing-4;
+    }
+
+    &:last-child {
+        padding-right: $spacing-4;
+    }
+
+    @media (min-width: $tablet) {
+        padding: $spacing-4 $spacing-3;
+    }
+}
+
+.nameCell {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    min-width: 140px;
+
+    @media (min-width: $tablet) {
+        min-width: 180px;
+    }
+}
+
+.name {
+    font-weight: $font-weight-medium;
+    color: $gray-900;
+    font-size: $font-size-xs;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-sm;
+    }
+}
+
+.isin {
+    font-size: 0.625rem;
+    color: $gray-500;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xs;
+    }
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    color: $gray-400;
+    cursor: pointer;
+    padding: $spacing-2;
+    border-radius: $border-radius;
+    font-size: $font-size-lg;
+    line-height: 1;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background-color: $gray-100;
+        color: $gray-600;
+    }
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+    }
+
+    &:active {
+        background-color: $gray-200;
+    }
+}
