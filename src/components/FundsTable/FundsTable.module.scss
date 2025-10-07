@@ -78,6 +78,33 @@
     }
 }
 
+.sortableHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: $primary-blue;
+
+        .headerTitle {
+            color: $primary-blue;
+        }
+    }
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+        border-radius: $border-radius-sm;
+    }
+}
+
 .headerContent {
     display: flex;
     flex-direction: column;

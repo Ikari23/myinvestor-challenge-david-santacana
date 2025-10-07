@@ -1,0 +1,66 @@
+.sortIcon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.25rem;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+
+    @media (min-width: $tablet) {
+        margin-left: 0.375rem;
+    }
+}
+
+.sortSvg {
+    display: block;
+    flex-shrink: 0;
+}
+
+.arrowUp,
+.arrowDown {
+    fill: $gray-500;
+    transition: fill 0.15s ease;
+}
+
+.arrowUp.active {
+    fill: $gray-800;
+}
+
+.arrowDown.active {
+    fill: $gray-800;
+}
+
+// Show icon more clearly on hover
+.sortableHeader:hover .sortIcon {
+    opacity: 0.8;
+
+    .arrowUp,
+    .arrowDown {
+        fill: $gray-600;
+    }
+}
+
+// When sorting is active, make it more visible
+.sortIcon:has(.active) {
+    opacity: 1;
+}
+
+// Fallback for browsers that don't support :has()
+.active {
+    opacity: 1;
+}
+
+// Desktop styles
+@media (min-width: $tablet) {
+    .sortIcon {
+        opacity: 0.6;
+    }
+
+    .sortSvg {
+        width: 9px;
+        height: 13px;
+    }
+
+    .sortableHeader:hover .sortIcon {
+        opacity: 1;
+    }
+}

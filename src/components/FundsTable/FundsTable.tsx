@@ -1,56 +1,52 @@
 import React from 'react';
-import type { TableColumn } from '../../types';
+import type { TableColumn, Fund } from '../../types';
+import { useTableSort } from '../../hooks/useTableSort';
+import { SortIcon } from '../SortIcon';
 import styles from './FundsTable.module.scss';
 
-// Mock data for initial testing
-const mockData = [
+// Mock data matching the real Fund structure
+const mockData: Fund[] = [
     {
         id: '1',
         name: 'Global Equity Fund',
-        isin: '',
-        type: '',
-        div: '',
-        category: 'GLOBAL',
+        currency: 'USD',
+        symbol: 'GEF',
         value: 120.45,
-        currency: 'USD' as const,
-        ytd: 5.0,
-        oneYear: 12.0,
-        threeYears: 35.0,
-        fiveYears: 50.0,
-        ter: '',
-        riskLevel: '',
+        category: 'GLOBAL',
+        profitability: {
+            YTD: 0.05,
+            oneYear: 0.12,
+            threeYears: 0.35,
+            fiveYears: 0.50,
+        },
     },
     {
         id: '2',
         name: 'Tech Growth Fund',
-        isin: '',
-        type: '',
-        div: '',
-        category: 'TECH',
+        currency: 'EUR',
+        symbol: 'TGF',
         value: 210.32,
-        currency: 'EUR' as const,
-        ytd: 8.0,
-        oneYear: 18.0,
-        threeYears: 42.0,
-        fiveYears: 65.0,
-        ter: '',
-        riskLevel: '',
+        category: 'TECH',
+        profitability: {
+            YTD: 0.08,
+            oneYear: 0.18,
+            threeYears: 0.42,
+            fiveYears: 0.65,
+        },
     },
     {
         id: '3',
         name: 'Healthcare Opportunities',
-        isin: '',
-        type: '',
-        div: '',
-        category: 'HEALTH',
+        currency: 'USD',
+        symbol: 'HCO',
         value: 145.9,
-        currency: 'USD' as const,
-        ytd: 3.0,
-        oneYear: 9.0,
-        threeYears: 28.0,
-        fiveYears: 41.0,
-        ter: '',
-        riskLevel: '',
+        category: 'HEALTH',
+        profitability: {
+            YTD: 0.03,
+            oneYear: 0.09,
+            threeYears: 0.28,
+            fiveYears: 0.41,
+        },
     },
 ];
 
@@ -70,6 +66,8 @@ const tableColumns: TableColumn[] = [
 ];
 
 export const FundsTable: React.FC = () => {
+    const { sortState, sortedData, handleSort } = useTableSort(mockData);
+
     return (
         <div className={styles.tableContainer}>
             <h2 className={styles.title}>Listado de Fondos</h2>
@@ -79,37 +77,55 @@ export const FundsTable: React.FC = () => {
                         <tr>
                             {tableColumns.map((column) => (
                                 <th key={column.key} className={styles.headerCell}>
-                                    <div className={styles.headerContent}>
-                                        <span className={styles.headerTitle}>{column.title}</span>
-                                        {column.subtitle && (
-                                            <span className={styles.headerSubtitle}>{column.subtitle}</span>
-                                        )}
-                                    </div>
+                                    {column.sortable && column.sortKey ? (
+                                        <button
+                                            className={styles.sortableHeader}
+                                            onClick={() => handleSort(column.sortKey!)}
+                                            aria-label={`Ordenar por ${column.title}`}
+                                        >
+                                            <div className={styles.headerContent}>
+                                                <span className={styles.headerTitle}>{column.title}</span>
+                                                {column.subtitle && (
+                                                    <span className={styles.headerSubtitle}>{column.subtitle}</span>
+                                                )}
+                                            </div>
+                                            <SortIcon
+                                                direction={sortState.column === column.sortKey ? sortState.direction : null}
+                                            />
+                                        </button>
+                                    ) : (
+                                        <div className={styles.headerContent}>
+                                            <span className={styles.headerTitle}>{column.title}</span>
+                                            {column.subtitle && (
+                                                <span className={styles.headerSubtitle}>{column.subtitle}</span>
+                                            )}
+                                        </div>
+                                    )}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {mockData.map((fund) => (
+                        {sortedData.map((fund) => (
                             <tr key={fund.id} className={styles.row}>
                                 <td className={styles.cell}>
                                     <div className={styles.nameCell}>
                                         <span className={styles.name}>{fund.name}</span>
-                                        <span className={styles.isin}>{fund.isin || '-'}</span>
+                                        <span className={styles.isin}>-</span>
                                     </div>
                                 </td>
-                                <td className={styles.cell}>{fund.type || '-'}</td>
-                                <td className={styles.cell}>{fund.div || '-'}</td>
+                                <td className={styles.cell}>-</td>
+                                <td className={styles.cell}>-</td>
                                 <td className={styles.cell}>{fund.category}</td>
                                 <td className={styles.cell}>
                                     {fund.value.toFixed(2)} {fund.currency}
                                 </td>
-                                <td className={styles.cell}>{fund.ytd.toFixed(1)}%</td>
-                                <td className={styles.cell}>{fund.oneYear.toFixed(1)}%</td>
-                                <td className={styles.cell}>{fund.threeYears.toFixed(1)}%</td>
-                                <td className={styles.cell}>{fund.fiveYears.toFixed(1)}%</td>
-                                <td className={styles.cell}>{fund.ter || '-'}</td>
-                                <td className={styles.cell}>{fund.riskLevel || '-'}</td>
+                                <td className={styles.cell}>{(fund.profitability.YTD * 100).toFixed(1)}%</td>
+                                <td className={styles.cell}>{(fund.profitability.oneYear * 100).toFixed(1)}%</td>
+                                <td className={styles.cell}>{(fund.profitability.threeYears * 100).toFixed(1)}%</td>
+                                <td className={styles.cell}>{(fund.profitability.fiveYears * 100).toFixed(1)}%</td>
+                                <td className={styles.cell}>-</td>
+                                <td className={styles.cell}>-</td>
                                 <td className={styles.cell}>
                                     <button className={styles.actionButton} aria-label="Acciones">
                                         ⋯
