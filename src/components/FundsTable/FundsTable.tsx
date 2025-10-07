@@ -5,6 +5,7 @@ import { useFunds } from '../../hooks/useFunds';
 import { useFundsStore } from '../../stores/fundsStore';
 import { SortIcon } from '../SortIcon';
 import { Pagination } from '../Pagination';
+import { ActionMenu } from '../ActionMenu';
 import styles from './FundsTable.module.scss';
 
 const tableColumns: TableColumn[] = [
@@ -32,7 +33,14 @@ export const FundsTable: React.FC = () => {
 
     const { sortState, sortedData, handleSort } = useTableSort(funds);
 
-    // Calculate pagination data
+    const handleBuyFund = (fund: any) => {
+        console.log('Comprar fondo:', fund.name);
+    };
+
+    const handleViewDetail = (fund: any) => {
+        console.log('Ver detalle del fondo:', fund.name);
+    };
+
     const paginatedData = useMemo(() => {
         const startIndex = (localCurrentPage - 1) * localItemsPerPage;
         const endIndex = startIndex + localItemsPerPage;
@@ -46,7 +54,7 @@ export const FundsTable: React.FC = () => {
     };
 
     const handleItemsPerPageChange = (itemsPerPage: number) => {
-        setLocalPagination(1, itemsPerPage); // Reset to first page when changing items per page
+        setLocalPagination(1, itemsPerPage);
     };
 
     if (loading) {
@@ -194,13 +202,11 @@ export const FundsTable: React.FC = () => {
                                 <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
                                 <td className={styles.cell} role="gridcell" aria-label="Nivel de riesgo no disponible">-</td>
                                 <td className={styles.cell} role="gridcell">
-                                    <button
-                                        className={styles.actionButton}
-                                        aria-label={`Abrir menú de acciones para ${fund.name}`}
-                                        aria-haspopup="menu"
-                                    >
-                                        ⋯
-                                    </button>
+                                    <ActionMenu
+                                        fund={fund}
+                                        onBuy={handleBuyFund}
+                                        onViewDetail={handleViewDetail}
+                                    />
                                 </td>
                             </tr>
                         ))}
