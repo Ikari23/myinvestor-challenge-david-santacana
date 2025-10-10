@@ -1,0 +1,115 @@
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    min-width: 320px;
+    max-width: 480px;
+    padding: $spacing-4 $spacing-5;
+    border-radius: $border-radius-lg;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 9999;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    
+    @media (max-width: $mobile) {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+
+    &.visible {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+}
+
+.icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: $font-weight-bold;
+}
+
+.message {
+    flex: 1;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    line-height: 1.4;
+}
+
+.closeButton {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-1;
+    border-radius: $border-radius-sm;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    &:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline-offset: 2px;
+    }
+}
+
+// Success toast styles
+.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: 1px solid #059669;
+
+    .icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .closeButton {
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+    }
+}
+
+// Error toast styles
+.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: 1px solid #dc2626;
+
+    .icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .closeButton {
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+    }
+}

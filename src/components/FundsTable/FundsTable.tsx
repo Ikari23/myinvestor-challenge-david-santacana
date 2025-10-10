@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from 'react';
-import type { TableColumn } from '../../types/funds';
+import React, { useMemo, useRef, useState } from 'react';
+import type { TableColumn, Fund } from '../../types/funds';
 import { useTableSort } from '../../hooks/useTableSort';
-import { useFunds } from '../../hooks/useFunds';
+import { useFunds, useBuyFund } from '../../hooks/useFunds';
+import { useToast } from '../../hooks/useToast';
 import { SortIcon } from '../SortIcon/SortIcon';
 import { Pagination } from '../Pagination/Pagination';
 import { ActionMenu } from '../ActionMenu/ActionMenu';
+import { useForm } from 'react-hook-form';
+import { Dialog } from '../Dialog/Dialog';
+import { Toast } from '../Toast/Toast';
 import styles from './FundsTable.module.scss';
 
 const tableColumns: TableColumn[] = [
@@ -22,18 +26,76 @@ const tableColumns: TableColumn[] = [
     { key: 'actions', title: '', sortable: false },
 ];
 
+type BuyFormValues = { quantity: number };
+
 export const FundsTable: React.FC = () => {
     const { funds, loading, error, totalFunds } = useFunds();
+    const buyFundMutation = useBuyFund();
+    const { toast, showSuccess, showError, hideToast } = useToast();
     const [localCurrentPage, setLocalCurrentPage] = useState(1);
     const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
+    const [selectedFundId, setSelectedFundId] = useState<string | null>(null);
+    const [isBuyOpen, setIsBuyOpen] = useState(false);
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<BuyFormValues>({
+        defaultValues: { quantity: 1 },
+        mode: 'onChange',
+    });
 
     const { sortState, sortedData, handleSort } = useTableSort(funds);
 
-    const handleBuyFund = (fund: any) => {
-        console.log('Comprar fondo:', fund.name);
+    const handleBuyFund = (fund: Fund) => {
+        setSelectedFundId(fund.id);
+        reset({ quantity: 1 });
+        setIsBuyOpen(true);
     };
 
-    const handleViewDetail = (fund: any) => {
+    const handleBuySubmit = async (values: BuyFormValues) => {
+        if (!selectedFundId) return;
+
+        try {
+            await buyFundMutation.mutateAsync({
+                fundId: selectedFundId,
+                quantity: values.quantity
+            });
+            
+            // Encontrar el nombre del fondo para el mensaje
+            const selectedFund = funds.find(fund => fund.id === selectedFundId);
+            const fundName = selectedFund?.name || 'fondo';
+            
+            // Mostrar toast de éxito
+            showSuccess(`Compra realizada con éxito: ${values.quantity} unidades de ${fundName}`);
+            
+            // Cerrar el dialog
+            setIsBuyOpen(false);
+            setSelectedFundId(null);
+            reset({ quantity: 1 });
+            
+        } catch (error) {
+            console.error('Error al realizar la compra:', error);
+            
+            // Mostrar toast de error
+            let errorMessage = 'Error al realizar la compra. Inténtalo de nuevo.';
+            
+            // Personalizar mensaje de error si es posible
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as any;
+                if (axiosError.response?.data?.error) {
+                    errorMessage = axiosError.response.data.error;
+                }
+            }
+            
+            showError(errorMessage);
+        }
+    };
+
+    const handleViewDetail = (fund: Fund) => {
         console.log('Ver detalle del fondo:', fund.name);
     };
 
@@ -218,6 +280,28 @@ export const FundsTable: React.FC = () => {
                 itemsPerPage={localItemsPerPage}
                 onPageChange={handlePageChange}
                 onItemsPerPageChange={handleItemsPerPageChange}
+            />
+
+            <Dialog
+                isOpen={isBuyOpen}
+                title="Comprar fondo"
+                onClose={() => {
+                    setIsBuyOpen(false);
+                    setSelectedFundId(null);
+                }}
+                onSubmit={handleSubmit(handleBuySubmit)}
+                register={register}
+                errors={errors}
+                isSubmitting={buyFundMutation.isPending}
+                setValue={setValue}
+                watch={watch}
+            />
+
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
             />
         </div>
     );

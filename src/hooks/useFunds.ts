@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Fund } from '../types/funds';
 
 interface FundsApiResponse {
@@ -10,6 +10,21 @@ interface FundsApiResponse {
         totalPages: number;
     };
     data: Fund[];
+}
+
+interface BuyFundRequest {
+    fundId: string;
+    quantity: number;
+}
+
+interface BuyFundResponse {
+    message: string;
+    data: {
+        portfolio: Array<{
+            id: string;
+            quantity: number;
+        }>;
+    };
 }
 
 export const useFunds = () => {
@@ -38,4 +53,24 @@ export const useFunds = () => {
         totalFunds,
         refetch,
     };
+};
+
+export const useBuyFund = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: async ({ fundId, quantity }: BuyFundRequest): Promise<BuyFundResponse> => {
+            const response = await axios.post<BuyFundResponse>(`/api/funds/${fundId}/buy`, {
+                quantity
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            // Invalidar queries relacionadas para refrescar datos
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+        },
+        onError: (error) => {
+            console.error('Error al comprar fondo:', error);
+        }
+    });
 };
