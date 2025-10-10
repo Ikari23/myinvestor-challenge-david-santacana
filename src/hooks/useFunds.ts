@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import axios from 'axios';
-import { useFundsStore } from '../stores/fundsStore';
+import { useQuery } from '@tanstack/react-query';
 import type { Fund } from '../types';
 
 interface FundsApiResponse {
@@ -15,57 +14,28 @@ interface FundsApiResponse {
 
 export const useFunds = () => {
     const {
-        funds,
-        loading,
+        data,
+        isLoading,
         error,
-        totalFunds,
-        setFunds,
-        setLoading,
-        setError,
-        setPagination,
-    } = useFundsStore();
+        refetch,
+    } = useQuery({
+        queryKey: ['funds'],
+        queryFn: async () => {
+            const response = await axios.get<FundsApiResponse>(`/api/funds?page=1&limit=1000`);
+            return response.data;
+        },
+        staleTime: 1000 * 60, // 1 min
+    });
 
-    const fetchAllFunds = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await axios.get<FundsApiResponse>(
-                `/api/funds?page=1&limit=1000`
-            );
-
-            setFunds(response.data.data);
-            setPagination({
-                page: 1,
-                totalPages: 1,
-                totalFunds: response.data.data.length,
-                limit: response.data.data.length,
-            });
-        } catch (err) {
-            let errorMessage = 'Error desconocido';
-
-            if (axios.isAxiosError(err)) {
-                errorMessage = err.response?.data?.error || err.message;
-            } else if (err instanceof Error) {
-                errorMessage = err.message;
-            }
-
-            setError(errorMessage);
-            console.error('Error fetching funds:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchAllFunds();
-    }, []);
+    const funds = data?.data ?? [];
+    const totalFunds = funds.length;
+    const errorMessage = error ? (axios.isAxiosError(error) ? (error.response?.data as any)?.error || error.message : (error as Error).message) : null;
 
     return {
         funds,
-        loading,
-        error,
+        loading: isLoading,
+        error: errorMessage,
         totalFunds,
-        refetch: fetchAllFunds,
+        refetch,
     };
 };

@@ -1,6 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import type { Fund } from '../../types';
 import styles from './ActionMenu.module.scss';
+import { useClickOutside } from '../../hooks/useClickOutside';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface ActionMenuProps {
     fund: Fund;
@@ -17,43 +19,13 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (
-                menuRef.current &&
-                !menuRef.current.contains(event.target as Node) &&
-                buttonRef.current &&
-                !buttonRef.current.contains(event.target as Node)
-            ) {
-                setIsOpen(false);
-            }
-        };
+    const closeMenu = useCallback(() => setIsOpen(false), []);
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen]);
-
-    useEffect(() => {
-        const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                setIsOpen(false);
-                buttonRef.current?.focus();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('keydown', handleEscape);
-        }
-
-        return () => {
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, [isOpen]);
+    useClickOutside(menuRef, closeMenu, { enabled: isOpen, extraRefs: [buttonRef] });
+    useEscapeKey(() => {
+        setIsOpen(false);
+        buttonRef.current?.focus();
+    }, isOpen);
 
     const handleToggle = () => {
         setIsOpen(!isOpen);

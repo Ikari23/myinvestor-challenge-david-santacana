@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { TableColumn } from '../../types';
 import { useTableSort } from '../../hooks/useTableSort';
 import { useFunds } from '../../hooks/useFunds';
-import { useFundsStore } from '../../stores/fundsStore';
 import { SortIcon } from '../SortIcon';
 import { Pagination } from '../Pagination';
 import { ActionMenu } from '../ActionMenu';
@@ -25,11 +24,8 @@ const tableColumns: TableColumn[] = [
 
 export const FundsTable: React.FC = () => {
     const { funds, loading, error, totalFunds } = useFunds();
-    const {
-        localCurrentPage,
-        localItemsPerPage,
-        setLocalPagination
-    } = useFundsStore();
+    const [localCurrentPage, setLocalCurrentPage] = useState(1);
+    const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
 
     const { sortState, sortedData, handleSort } = useTableSort(funds);
 
@@ -50,11 +46,12 @@ export const FundsTable: React.FC = () => {
     const totalPages = Math.ceil(sortedData.length / localItemsPerPage);
 
     const handlePageChange = (page: number) => {
-        setLocalPagination(page, localItemsPerPage);
+        setLocalCurrentPage(page);
     };
 
     const handleItemsPerPageChange = (itemsPerPage: number) => {
-        setLocalPagination(1, itemsPerPage);
+        setLocalCurrentPage(1);
+        setLocalItemsPerPage(itemsPerPage);
     };
 
     if (loading) {
@@ -180,23 +177,23 @@ export const FundsTable: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 2025: ${(fund.profitability.YTD * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.YTD * 100).toFixed(2)}
+                                    <span aria-label={`Rentabilidad 2025: ${fund.profitability.YTD.toFixed(2)}`}>
+                                        {fund.profitability.YTD.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 1 año: ${(fund.profitability.oneYear * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.oneYear * 100).toFixed(2)}
+                                    <span aria-label={`Rentabilidad 1 año: ${fund.profitability.oneYear.toFixed(2)}`}>
+                                        {fund.profitability.oneYear.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 3 años: ${(fund.profitability.threeYears * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.threeYears * 100).toFixed(2)}
+                                    <span aria-label={`Rentabilidad 3 años: ${fund.profitability.threeYears.toFixed(2)}`}>
+                                        {fund.profitability.threeYears.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 5 años: ${(fund.profitability.fiveYears * 100).toFixed(1)} por ciento`}>
-                                        {(fund.profitability.fiveYears * 100).toFixed(2)}
+                                    <span aria-label={`Rentabilidad 5 años: ${fund.profitability.fiveYears.toFixed(2)}`}>
+                                        {fund.profitability.fiveYears.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
