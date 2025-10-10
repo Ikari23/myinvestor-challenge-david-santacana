@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import type { Fund } from '../types';
+import type { Fund } from '../types/funds';
 
 interface FundsApiResponse {
     pagination: {

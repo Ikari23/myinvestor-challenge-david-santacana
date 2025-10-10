@@ -1,5 +1,5 @@
 import React from 'react';
-import { FundsTable } from './components/FundsTable';
+import { FundsTable } from './components/FundsTable/FundsTable';
 
 export const App: React.FC = () => {
     return (

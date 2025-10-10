@@ -20,7 +20,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
     const getVisiblePages = () => {
         const pagesToShowAroundCurrent = 2;
-        const range = [];
+        const range = [] as number[];
         const start = Math.max(1, currentPage - pagesToShowAroundCurrent);
         const end = Math.min(totalPages, currentPage + pagesToShowAroundCurrent);
 
@@ -37,7 +37,6 @@ export const Pagination: React.FC<PaginationProps> = ({
 
     return (
         <div className={styles.paginationContainer}>
-            {/* Items per page selector */}
             <div className={styles.itemsPerPage}>
                 <label htmlFor="itemsPerPage" className={styles.label}>
                     Elementos por página:
@@ -95,8 +94,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                     <button
                         key={page}
                         onClick={() => onPageChange(page)}
-                        className={`${styles.pageButton} ${page === currentPage ? styles.active : ''
-                            }`}
+                        className={`${styles.pageButton} ${page === currentPage ? styles.active : ''}`}
                         aria-label={`Página ${page}`}
                         aria-current={page === currentPage ? 'page' : undefined}
                     >
@@ -139,3 +137,5 @@ export const Pagination: React.FC<PaginationProps> = ({
         </div>
     );
 };
+
+

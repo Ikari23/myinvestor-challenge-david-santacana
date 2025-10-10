@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import type { TableColumn } from '../../types';
+import type { TableColumn } from '../../types/funds';
 import { useTableSort } from '../../hooks/useTableSort';
 import { useFunds } from '../../hooks/useFunds';
-import { SortIcon } from '../SortIcon';
-import { Pagination } from '../Pagination';
-import { ActionMenu } from '../ActionMenu';
+import { SortIcon } from '../SortIcon/SortIcon';
+import { Pagination } from '../Pagination/Pagination';
+import { ActionMenu } from '../ActionMenu/ActionMenu';
 import styles from './FundsTable.module.scss';
 
 const tableColumns: TableColumn[] = [
@@ -222,3 +222,5 @@ export const FundsTable: React.FC = () => {
         </div>
     );
 };
+
+

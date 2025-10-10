@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { Fund, SortableColumn, SortDirection, SortState } from '../types';
+import type { Fund, SortableColumn, SortDirection, SortState } from '../types/funds';
 
 export const useTableSort = (data: Fund[]) => {
     const [sortState, setSortState] = useState<SortState>({

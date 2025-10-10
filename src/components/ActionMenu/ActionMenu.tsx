@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import type { Fund } from '../../types';
+import type { Fund } from '../../types/funds';
 import styles from './ActionMenu.module.scss';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
@@ -82,3 +82,5 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         </div>
     );
 };
+
+

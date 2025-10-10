@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SortDirection } from '../../types';
+import type { SortDirection } from '../../types/funds';
 import styles from './SortIcon.module.scss';
 
 interface SortIconProps {
@@ -32,3 +32,5 @@ export const SortIcon: React.FC<SortIconProps> = ({ direction }) => {
         </span>
     );
 };
+
+
