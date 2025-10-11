@@ -17,13 +17,10 @@ body {
     background-color: $gray-50;
     color: $gray-900;
     line-height: 1.5;
+    margin: 0;
+    padding: 0;
 }
 
 .app {
     min-height: 100vh;
-    padding: $spacing-4 0;
-
-    @media (min-width: $tablet) {
-        padding: $spacing-6 0;
-    }
 }

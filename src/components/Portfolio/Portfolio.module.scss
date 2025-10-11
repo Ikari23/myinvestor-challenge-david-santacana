@@ -1,0 +1,486 @@
+.portfolioContainer {
+    padding: $spacing-2;
+    background-color: white;
+    min-height: 100vh;
+
+    @media (min-width: $mobile) {
+        padding: $spacing-4;
+    }
+
+    @media (min-width: $tablet) {
+        padding: $spacing-6;
+    }
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: $spacing-4;
+    gap: $spacing-3;
+    padding-left: 0;
+    padding-right: 0;
+
+    @media (min-width: $mobile) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: $spacing-6;
+    }
+
+    @media (min-width: $tablet) {
+        margin-bottom: $spacing-6;
+    }
+}
+
+.title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+    margin: 0;
+    padding-left: $spacing-2;
+
+    @media (min-width: $mobile) {
+        padding-left: $spacing-4;
+    }
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xl;
+        padding-left: $spacing-4;
+    }
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    padding: $spacing-3 $spacing-4;
+    background: linear-gradient(135deg, $primary-blue 0%, #4f46e5 100%);
+    border-radius: $border-radius-lg;
+    color: white;
+
+    @media (min-width: $mobile) {
+        align-items: flex-end;
+    }
+}
+
+.totalLabel {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    opacity: 0.9;
+}
+
+.totalValue {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xl;
+    }
+}
+
+.portfolioWrapper {
+    background: white;
+}
+
+.portfolioGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+
+    @media (min-width: $tablet) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $spacing-5;
+    }
+
+    @media (min-width: $desktop) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: $spacing-6;
+    }
+}
+
+.portfolioCard {
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-lg;
+    padding: $spacing-5;
+    background: white;
+    box-shadow: $shadow-sm;
+    transition: all 0.2s ease;
+
+    &:hover {
+        box-shadow: $shadow;
+        transform: translateY(-2px);
+    }
+}
+
+.cardHeader {
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-3;
+    border-bottom: 1px solid $gray-100;
+}
+
+.fundName {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+    margin: 0 0 $spacing-1 0;
+    line-height: 1.3;
+}
+
+.fundId {
+    font-size: $font-size-xs;
+    color: $gray-500;
+    font-weight: $font-weight-medium;
+}
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    margin-bottom: $spacing-5;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-2 0;
+}
+
+.statLabel {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    font-weight: $font-weight-medium;
+}
+
+.statValue {
+    font-size: $font-size-sm;
+    color: $gray-900;
+    font-weight: $font-weight-semibold;
+}
+
+.cardActions {
+    display: flex;
+    gap: $spacing-3;
+    padding-top: $spacing-3;
+    border-top: 1px solid $gray-100;
+}
+
+.actionButton {
+    flex: 1;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid;
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+    }
+}
+
+.sellButton {
+    background: white;
+    color: #dc2626;
+    border-color: #fecaca;
+
+    &:hover {
+        background: #fef2f2;
+        border-color: #f87171;
+    }
+}
+
+.transferButton {
+    background: white;
+    color: $primary-blue;
+    border-color: #dbeafe;
+
+    &:hover {
+        background: #eff6ff;
+        border-color: #93c5fd;
+    }
+}
+
+// Estados de carga y error (reutilizando estilos de FundsTable)
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-8;
+    text-align: center;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $gray-200;
+    border-top: 3px solid $primary-blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: $spacing-4;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingText {
+    color: $gray-600;
+    font-size: $font-size-base;
+    margin: 0;
+}
+
+.errorText {
+    color: #dc2626;
+    font-size: $font-size-base;
+    margin: 0 0 $spacing-4 0;
+    font-weight: $font-weight-medium;
+}
+
+.retryButton {
+    background-color: $primary-blue;
+    color: white;
+    border: none;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $border-radius;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: #2563eb;
+    }
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+    }
+}
+
+.emptyContent {
+    max-width: 320px;
+}
+
+.emptyIcon {
+    font-size: 48px;
+    margin-bottom: $spacing-4;
+    opacity: 0.6;
+}
+
+.emptyText {
+    color: $gray-700;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-2 0;
+}
+
+.emptySubtext {
+    color: $gray-500;
+    font-size: $font-size-base;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.fundsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    margin-bottom: $spacing-6;
+
+    @media (min-width: $tablet) {
+        gap: $spacing-4;
+    }
+}
+
+.fundCard {
+    background: white;
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-lg;
+    transition: all 0.15s ease;
+
+    &:hover {
+        box-shadow: $shadow;
+        border-color: $gray-300;
+    }
+}
+
+.cardContent {
+    display: flex;
+    align-items: center;
+    padding: $spacing-4;
+    gap: $spacing-4;
+
+    @media (min-width: $tablet) {
+        padding: $spacing-5;
+        gap: $spacing-5;
+    }
+}
+
+.fundIcon {
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+    background: $gray-100;
+    border-radius: $border-radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+    }
+}
+
+.fundInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.fundName {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $primary-blue;
+    margin: 0;
+    line-height: 1.3;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-lg;
+    }
+}
+
+.fundCategory {
+    display: inline-block;
+    font-size: $font-size-xs;
+    color: $gray-600;
+    background: $gray-100;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-sm;
+    margin-bottom: $spacing-2;
+    font-weight: $font-weight-medium;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-sm;
+        padding: $spacing-1 $spacing-3;
+    }
+}
+
+.fundDetails {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    flex-wrap: wrap;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-base;
+    }
+}
+
+.fundQuantity {
+    color: $gray-700;
+    font-weight: $font-weight-medium;
+}
+
+.fundPrice {
+    color: $gray-600;
+    font-weight: $font-weight-normal;
+}
+
+.fundValue {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-1;
+    flex-shrink: 0;
+}
+
+.valueAmount {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $gray-900;
+
+    @media (min-width: $tablet) {
+        font-size: $font-size-xl;
+    }
+}
+
+.pricePerUnit {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    font-weight: $font-weight-normal;
+}
+
+.fundActions {
+    display: flex;
+    align-items: center;
+    margin-left: $spacing-3;
+
+    // Hacer el botón más grande en la cartera
+    .triggerButton {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+        padding: $spacing-3;
+
+        @media (min-width: $tablet) {
+            width: 52px;
+            height: 52px;
+            font-size: 26px;
+        }
+    }
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    color: $gray-400;
+    cursor: pointer;
+    padding: $spacing-2;
+    border-radius: $border-radius;
+    font-size: 20px;
+    line-height: 1;
+    transition: all 0.15s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background-color: $gray-100;
+        color: $gray-600;
+    }
+
+    &:focus {
+        outline: 2px solid $primary-blue;
+        outline-offset: 2px;
+    }
+
+    &:active {
+        background-color: $gray-200;
+    }
+}
+
+.fundChange {
+    font-weight: $font-weight-semibold;
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    color: #10b981;
+}

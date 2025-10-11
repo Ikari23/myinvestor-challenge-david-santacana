@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
+import axios from 'axios';
 import type { TableColumn, Fund } from '../../types/funds';
 import { useTableSort } from '../../hooks/useTableSort';
 import { useFunds, useBuyFund } from '../../hooks/useFunds';
@@ -26,7 +27,7 @@ const tableColumns: TableColumn[] = [
     { key: 'actions', title: '', sortable: false },
 ];
 
-type BuyFormValues = { quantity: number };
+type BuyFormValues = { amount: number };
 
 export const FundsTable: React.FC = () => {
     const { funds, loading, error, totalFunds } = useFunds();
@@ -44,7 +45,7 @@ export const FundsTable: React.FC = () => {
         watch,
         formState: { errors, isSubmitting },
     } = useForm<BuyFormValues>({
-        defaultValues: { quantity: 1 },
+        defaultValues: { amount: 0 },
         mode: 'onChange',
     });
 
@@ -52,52 +53,77 @@ export const FundsTable: React.FC = () => {
 
     const handleBuyFund = (fund: Fund) => {
         setSelectedFundId(fund.id);
-        reset({ quantity: 1 });
+        reset({ amount: 0 });
         setIsBuyOpen(true);
     };
 
     const handleBuySubmit = async (values: BuyFormValues) => {
         if (!selectedFundId) return;
 
+        // Encontrar el fondo seleccionado para obtener su valor
+        const selectedFund = funds.find(fund => fund.id === selectedFundId);
+        if (!selectedFund) {
+            showError('Error: No se pudo encontrar el fondo seleccionado');
+            return;
+        }
+
+        // Calcular las unidades basándose en el dinero invertido
+        const quantity = values.amount / selectedFund.value;
+
         try {
             await buyFundMutation.mutateAsync({
                 fundId: selectedFundId,
-                quantity: values.quantity
+                quantity: quantity
             });
-            
-            // Encontrar el nombre del fondo para el mensaje
-            const selectedFund = funds.find(fund => fund.id === selectedFundId);
-            const fundName = selectedFund?.name || 'fondo';
-            
-            // Mostrar toast de éxito
-            showSuccess(`Compra realizada con éxito: ${values.quantity} unidades de ${fundName}`);
-            
+
+            const fundName = selectedFund.name || 'fondo';
+
+            // Mostrar toast de éxito con información del dinero invertido
+            showSuccess(`Compra realizada con éxito: ${values.amount.toFixed(2)} € en ${fundName} (${quantity.toFixed(4)} unidades)`);
+
             // Cerrar el dialog
             setIsBuyOpen(false);
             setSelectedFundId(null);
-            reset({ quantity: 1 });
-            
+            reset({ amount: 0 });
+
         } catch (error) {
             console.error('Error al realizar la compra:', error);
-            
-            // Mostrar toast de error
+
             let errorMessage = 'Error al realizar la compra. Inténtalo de nuevo.';
-            
-            // Personalizar mensaje de error si es posible
+
             if (error && typeof error === 'object' && 'response' in error) {
-                const axiosError = error as any;
-                if (axiosError.response?.data?.error) {
-                    errorMessage = axiosError.response.data.error;
+                const axiosError = error as unknown;
+                if (axios.isAxiosError(axiosError) && axiosError.response?.data) {
+                    const apiError = axiosError.response.data as { error?: string };
+                    if (apiError.error) {
+                        errorMessage = apiError.error;
+                    }
                 }
             }
-            
+
             showError(errorMessage);
         }
     };
 
     const handleViewDetail = (fund: Fund) => {
-        console.log('Ver detalle del fondo:', fund.name);
+        showSuccess(`Mostrando detalles de ${fund.name}`);
     };
+
+    // Opciones para el ActionMenu en la tabla de fondos
+    const getFundsTableMenuOptions = (fund: Fund) => [
+        {
+            id: 'buy',
+            label: 'Comprar',
+            icon: '→',
+            action: () => handleBuyFund(fund)
+        },
+        {
+            id: 'view-detail',
+            label: 'Ver detalle',
+            icon: '👁',
+            action: () => handleViewDetail(fund)
+        }
+    ];
 
     const paginatedData = useMemo(() => {
         const startIndex = (localCurrentPage - 1) * localItemsPerPage;
@@ -155,6 +181,9 @@ export const FundsTable: React.FC = () => {
             </div>
         );
     }
+
+    // Obtener el valor del fondo seleccionado para pasarlo al Dialog
+    const selectedFund = selectedFundId ? funds.find(fund => fund.id === selectedFundId) : null;
 
     return (
         <div className={styles.tableContainer}>
@@ -263,8 +292,7 @@ export const FundsTable: React.FC = () => {
                                 <td className={styles.cell} role="gridcell">
                                     <ActionMenu
                                         fund={fund}
-                                        onBuy={handleBuyFund}
-                                        onViewDetail={handleViewDetail}
+                                        options={getFundsTableMenuOptions(fund)}
                                     />
                                 </td>
                             </tr>
@@ -295,6 +323,7 @@ export const FundsTable: React.FC = () => {
                 isSubmitting={buyFundMutation.isPending}
                 setValue={setValue}
                 watch={watch}
+                fundValue={selectedFund?.value || 0}
             />
 
             <Toast
@@ -306,5 +335,3 @@ export const FundsTable: React.FC = () => {
         </div>
     );
 };
-
-

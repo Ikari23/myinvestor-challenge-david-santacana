@@ -27,6 +27,54 @@ interface BuyFundResponse {
     };
 }
 
+interface PortfolioItem {
+    id: string;
+    name?: string;
+    quantity: number;
+    totalValue: number;
+}
+
+interface PortfolioResponse {
+    data: PortfolioItem[];
+}
+
+interface ApiError {
+    error?: string;
+    message?: string;
+}
+
+export const usePortfolio = () => {
+    const {
+        data,
+        isLoading,
+        error,
+        refetch,
+    } = useQuery({
+        queryKey: ['portfolio'],
+        queryFn: async () => {
+            const response = await axios.get<PortfolioResponse>(`/api/portfolio`);
+            return response.data;
+        },
+        staleTime: 1000 * 30, // 30 segundos
+    });
+
+    const portfolio = data?.data ?? [];
+    const totalPortfolioValue = portfolio.reduce((sum, item) => sum + item.totalValue, 0);
+    const errorMessage = error ?
+        (axios.isAxiosError(error) ?
+            (error.response?.data as ApiError)?.error || error.message :
+            (error as Error).message
+        ) : null;
+
+    return {
+        portfolio,
+        totalPortfolioValue,
+        loading: isLoading,
+        error: errorMessage,
+        refetch,
+    };
+};
+
 export const useFunds = () => {
     const {
         data,
@@ -44,7 +92,11 @@ export const useFunds = () => {
 
     const funds = data?.data ?? [];
     const totalFunds = funds.length;
-    const errorMessage = error ? (axios.isAxiosError(error) ? (error.response?.data as any)?.error || error.message : (error as Error).message) : null;
+    const errorMessage = error ?
+        (axios.isAxiosError(error) ?
+            (error.response?.data as ApiError)?.error || error.message :
+            (error as Error).message
+        ) : null;
 
     return {
         funds,
@@ -57,7 +109,7 @@ export const useFunds = () => {
 
 export const useBuyFund = () => {
     const queryClient = useQueryClient();
-    
+
     return useMutation({
         mutationFn: async ({ fundId, quantity }: BuyFundRequest): Promise<BuyFundResponse> => {
             const response = await axios.post<BuyFundResponse>(`/api/funds/${fundId}/buy`, {

@@ -29,38 +29,44 @@ export const useTableSort = (data: Fund[]) => {
     };
 
     const sortedData = useMemo(() => {
-        if (!sortState.column || !sortState.direction) {
-            return data;
+        if (sortState.column && sortState.direction) {
+            return [...data].sort((a, b) => {
+                let aValue: unknown;
+                let bValue: unknown;
+
+                if (sortState.column!.includes('.')) {
+                    const keys = sortState.column!.split('.');
+                    aValue = keys.reduce((obj: unknown, key) => {
+                        if (obj && typeof obj === 'object' && obj !== null) {
+                            return (obj as Record<string, unknown>)[key];
+                        }
+                        return undefined;
+                    }, a as Record<string, unknown>);
+                    bValue = keys.reduce((obj: unknown, key) => {
+                        if (obj && typeof obj === 'object' && obj !== null) {
+                            return (obj as Record<string, unknown>)[key];
+                        }
+                        return undefined;
+                    }, b as Record<string, unknown>);
+                } else {
+                    aValue = (a as Record<string, unknown>)[sortState.column!];
+                    bValue = (b as Record<string, unknown>)[sortState.column!];
+                }
+
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    const result = aValue.localeCompare(bValue);
+                    return sortState.direction === 'asc' ? result : -result;
+                }
+
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    const result = aValue - bValue;
+                    return sortState.direction === 'asc' ? result : -result;
+                }
+
+                return 0;
+            });
         }
-
-        const sortColumn = sortState.column;
-        const sortDirection = sortState.direction;
-
-        return [...data].sort((a, b) => {
-            let aValue: any;
-            let bValue: any;
-
-            if (sortColumn.includes('.')) {
-                const keys = sortColumn.split('.');
-                aValue = keys.reduce((obj: any, key) => obj?.[key], a);
-                bValue = keys.reduce((obj: any, key) => obj?.[key], b);
-            } else {
-                aValue = (a as any)[sortColumn];
-                bValue = (b as any)[sortColumn];
-            }
-
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                const result = aValue.localeCompare(bValue);
-                return sortDirection === 'asc' ? result : -result;
-            }
-
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                const result = aValue - bValue;
-                return sortDirection === 'asc' ? result : -result;
-            }
-
-            return 0;
-        });
+        return data;
     }, [data, sortState]);
 
     return {

@@ -4,16 +4,28 @@ import styles from './ActionMenu.module.scss';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
+interface ActionOption {
+    id: string;
+    label: string;
+    icon: string;
+    action: () => void;
+}
+
+interface BaseFund {
+    id: string;
+    name?: string;
+}
+
 interface ActionMenuProps {
-    fund: Fund;
-    onBuy?: (fund: Fund) => void;
-    onViewDetail?: (fund: Fund) => void;
+    fund: Fund | BaseFund;
+    options: ActionOption[];
+    ariaLabel?: string;
 }
 
 export const ActionMenu: React.FC<ActionMenuProps> = ({
     fund,
-    onBuy,
-    onViewDetail
+    options,
+    ariaLabel
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -31,14 +43,9 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         setIsOpen(!isOpen);
     };
 
-    const handleBuy = () => {
+    const handleOptionClick = (action: () => void) => {
         setIsOpen(false);
-        onBuy?.(fund);
-    };
-
-    const handleViewDetail = () => {
-        setIsOpen(false);
-        onViewDetail?.(fund);
+        action();
     };
 
     return (
@@ -47,7 +54,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
                 ref={buttonRef}
                 className={styles.triggerButton}
                 onClick={handleToggle}
-                aria-label={`Abrir menú de acciones para ${fund.name}`}
+                aria-label={ariaLabel || `Abrir menú de acciones para ${fund.name}`}
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
             >
@@ -60,27 +67,19 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
                     role="menu"
                     aria-label={`Acciones para ${fund.name}`}
                 >
-                    <button
-                        className={styles.menuItem}
-                        onClick={handleBuy}
-                        role="menuitem"
-                    >
-                        <span className={styles.icon} aria-hidden="true">→</span>
-                        <span className={styles.text}>Comprar</span>
-                    </button>
-
-                    <button
-                        className={styles.menuItem}
-                        onClick={handleViewDetail}
-                        role="menuitem"
-                    >
-                        <span className={styles.icon} aria-hidden="true">👁</span>
-                        <span className={styles.text}>Ver detalle</span>
-                    </button>
+                    {options.map((option) => (
+                        <button
+                            key={option.id}
+                            className={styles.menuItem}
+                            onClick={() => handleOptionClick(option.action)}
+                            role="menuitem"
+                        >
+                            <span className={styles.icon} aria-hidden="true">{option.icon}</span>
+                            <span className={styles.text}>{option.label}</span>
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
     );
 };
-
-

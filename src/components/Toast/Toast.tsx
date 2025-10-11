@@ -11,12 +11,12 @@ interface ToastProps {
     duration?: number;
 }
 
-export const Toast: React.FC<ToastProps> = ({ 
-    message, 
-    type, 
-    isVisible, 
-    onClose, 
-    duration = 4000 
+export const Toast: React.FC<ToastProps> = ({
+    message,
+    type,
+    isVisible,
+    onClose,
+    duration = 4000
 }) => {
     useEffect(() => {
         if (isVisible && duration > 0) {

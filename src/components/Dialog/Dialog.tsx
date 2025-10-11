@@ -3,7 +3,7 @@ import type { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import styles from './Dialog.module.scss';
 
-type BuyFormValues = { quantity: number };
+type BuyFormValues = { amount: number };
 
 interface DialogProps {
     isOpen: boolean;
@@ -15,32 +15,25 @@ interface DialogProps {
     isSubmitting: boolean;
     setValue: UseFormSetValue<BuyFormValues>;
     watch: UseFormWatch<BuyFormValues>;
+    fundValue?: number;
 }
 
-export const Dialog: React.FC<DialogProps> = ({ 
-    isOpen, 
-    title, 
-    onClose, 
-    onSubmit, 
-    register, 
-    errors, 
+export const Dialog: React.FC<DialogProps> = ({
+    isOpen,
+    title,
+    onClose,
+    onSubmit,
+    register,
+    errors,
     isSubmitting,
     setValue,
-    watch
+    watch,
+    fundValue = 0
 }) => {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [displayValue, setDisplayValue] = useState('');
-    
-    const formatEuroValue = (value: number): string => {
-        return new Intl.NumberFormat('es-ES', {
-            style: 'currency',
-            currency: 'EUR',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
-    };
-    
-    const parseInputValue = (value: string): number => {
+
+    const parseEuroValue = (value: string): number => {
         // Permitir solo números, puntos y comas
         const cleanValue = value.replace(/[^\d,.-]/g, '');
         // Reemplazar coma por punto para el parsing
@@ -49,28 +42,44 @@ export const Dialog: React.FC<DialogProps> = ({
         return isNaN(numValue) ? 0 : numValue;
     };
 
+    const formatEuroValue = (value: number): string => {
+        return new Intl.NumberFormat('es-ES', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    };
+
+    const calculateUnits = (amount: number): number => {
+        if (fundValue > 0 && amount > 0) {
+            return amount / fundValue;
+        }
+        return 0;
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        
+
         // Permitir campo vacío
         if (inputValue === '') {
             setDisplayValue('');
-            setValue('quantity', 0);
+            setValue('amount', 0);
             return;
         }
-        
+
         // Mostrar exactamente lo que escribe el usuario
         setDisplayValue(inputValue);
-        
+
         // Parsear solo para las validaciones, sin modificar el display
-        const numericValue = parseInputValue(inputValue);
-        setValue('quantity', numericValue, { shouldValidate: true });
+        const numericValue = parseEuroValue(inputValue);
+        setValue('amount', numericValue, { shouldValidate: true });
     };
 
     const handleInputBlur = () => {
         // Solo formatear si el valor es válido y no excede límites
-        const currentValue = parseInputValue(displayValue);
-        
+        const currentValue = parseEuroValue(displayValue);
+
         // Solo formatear valores válidos y dentro del rango permitido
         if (currentValue > 0 && currentValue <= 10000) {
             setDisplayValue(formatEuroValue(currentValue));
@@ -80,7 +89,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
     const handleInputFocus = () => {
         // Al hacer focus, mostrar solo el número sin formato para facilitar edición
-        const currentValue = parseInputValue(displayValue);
+        const currentValue = parseEuroValue(displayValue);
         if (currentValue > 0 && displayValue.includes('€')) {
             // Solo quitar formato si actualmente está formateado
             setDisplayValue(currentValue.toString().replace('.', ','));
@@ -91,7 +100,7 @@ export const Dialog: React.FC<DialogProps> = ({
     useEffect(() => {
         if (isOpen) {
             setDisplayValue('');
-            setValue('quantity', 0);
+            setValue('amount', 0);
         }
     }, [isOpen, setValue]);
 
@@ -153,6 +162,11 @@ export const Dialog: React.FC<DialogProps> = ({
         };
     }, [isOpen, onClose]);
 
+    const currentAmount = watch('amount') || 0;
+
+    // Verificar si el valor del input es válido
+    const isValidAmount = currentAmount > 0 && currentAmount <= 10000 && !errors.amount;
+
     return (
         <dialog ref={dialogRef} aria-labelledby="dialog-title" className={styles.dialog}>
             <div className={styles.header}>
@@ -162,12 +176,12 @@ export const Dialog: React.FC<DialogProps> = ({
             <div className={styles.content}>
                 <form onSubmit={onSubmit}>
                     <div className={styles.formField}>
-                        <label htmlFor="quantity" className={styles.label}>
-                            Cantidad
+                        <label htmlFor="amount" className={styles.label}>
+                            Cantidad a invertir
                         </label>
                         <div className={styles.inputWrapper}>
                             <input
-                                id="quantity"
+                                id="amount"
                                 type="text"
                                 placeholder="0,00 €"
                                 className={styles.input}
@@ -179,15 +193,15 @@ export const Dialog: React.FC<DialogProps> = ({
                             {/* Campo oculto para react-hook-form con las validaciones */}
                             <input
                                 type="hidden"
-                                {...register('quantity', {
-                                    required: 'La cantidad es obligatoria',
-                                    min: { 
-                                        value: 0.01, 
-                                        message: 'La cantidad debe ser mayor que 0' 
+                                {...register('amount', {
+                                    required: 'La cantidad a invertir es obligatoria',
+                                    min: {
+                                        value: 0.01,
+                                        message: 'La cantidad debe ser mayor que 0'
                                     },
-                                    max: { 
-                                        value: 10000, 
-                                        message: 'No se pueden realizar compras superiores a 10.000 €' 
+                                    max: {
+                                        value: 10000,
+                                        message: 'No se pueden realizar compras superiores a 10.000 €'
                                     },
                                     validate: {
                                         positive: (value) => {
@@ -200,23 +214,32 @@ export const Dialog: React.FC<DialogProps> = ({
                                 })}
                             />
                         </div>
-                        {errors.quantity && (
+                        {errors.amount && (
                             <span role="alert" className={styles.errorMessage}>
-                                {errors.quantity.message}
+                                {errors.amount.message}
                             </span>
+                        )}
+
+                        {/* Mostrar solo precio por unidad */}
+                        {fundValue > 0 && (
+                            <div className={styles.calculation}>
+                                <span className={styles.calculationText}>
+                                    Precio por unidad: <strong>{formatEuroValue(fundValue)}</strong>
+                                </span>
+                            </div>
                         )}
                     </div>
                     <div className={styles.buttonGroup}>
-                        <button 
+                        <button
                             type="button"
                             className={`${styles.button} ${styles.secondaryButton}`}
                             onClick={onClose}
                         >
                             Cancelar
                         </button>
-                        <button 
-                            type="submit" 
-                            disabled={isSubmitting}
+                        <button
+                            type="submit"
+                            disabled={isSubmitting || !isValidAmount}
                             className={`${styles.button} ${styles.primaryButton}`}
                         >
                             {isSubmitting ? 'Procesando...' : 'Confirmar compra'}
@@ -227,5 +250,3 @@ export const Dialog: React.FC<DialogProps> = ({
         </dialog>
     );
 };
-
-
