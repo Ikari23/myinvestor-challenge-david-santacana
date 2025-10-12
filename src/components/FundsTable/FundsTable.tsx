@@ -1,13 +1,15 @@
-import React, { useMemo, useRef, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import type { TableColumn, Fund } from '../../types/funds';
 import { useTableSort } from '../../hooks/useTableSort';
-import { useFunds, useBuyFund } from '../../hooks/useFunds';
+import { useFunds } from '../../hooks/useFunds';
 import { useToast } from '../../hooks/useToast';
+import { usePagination } from '../../hooks/usePagination';
+import { useBuyFund } from '../../hooks/useBuyFund';
+import { formatNumber } from '../../utils/numberUtils';
+import { createFundsTableMenuOptions } from '../../utils/menuUtils';
 import { SortIcon } from '../SortIcon/SortIcon';
 import { Pagination } from '../Pagination/Pagination';
 import { ActionMenu } from '../ActionMenu/ActionMenu';
-import { useForm } from 'react-hook-form';
 import { Dialog } from '../Dialog/Dialog';
 import { Toast } from '../Toast/Toast';
 import styles from './FundsTable.module.scss';
@@ -27,119 +29,35 @@ const tableColumns: TableColumn[] = [
     { key: 'actions', title: '', sortable: false },
 ];
 
-type BuyFormValues = { amount: number };
-
 export const FundsTable: React.FC = () => {
     const { funds, loading, error, totalFunds } = useFunds();
-    const buyFundMutation = useBuyFund();
-    const { toast, showSuccess, showError, hideToast } = useToast();
-    const [localCurrentPage, setLocalCurrentPage] = useState(1);
-    const [localItemsPerPage, setLocalItemsPerPage] = useState(10);
-    const [selectedFundId, setSelectedFundId] = useState<string | null>(null);
-    const [isBuyOpen, setIsBuyOpen] = useState(false);
-    const {
-        register,
-        handleSubmit,
-        reset,
-        setValue,
-        watch,
-        formState: { errors, isSubmitting },
-    } = useForm<BuyFormValues>({
-        defaultValues: { amount: 0 },
-        mode: 'onChange',
-    });
+    const { toast, showSuccess, hideToast } = useToast();
 
     const { sortState, sortedData, handleSort } = useTableSort(funds);
 
-    const handleBuyFund = (fund: Fund) => {
-        setSelectedFundId(fund.id);
-        reset({ amount: 0 });
-        setIsBuyOpen(true);
-    };
+    const {
+        currentPage,
+        itemsPerPage,
+        totalPages,
+        paginatedData,
+        handlePageChange,
+        handleItemsPerPageChange,
+    } = usePagination({ data: sortedData });
 
-    const handleBuySubmit = async (values: BuyFormValues) => {
-        if (!selectedFundId) return;
+    const {
+        isBuyOpen,
+        isSubmitting,
+        formMethods,
+        handleBuyFund,
+        handleBuySubmit,
+        handleCloseBuy,
+        selectedFund,
+    } = useBuyFund(funds);
 
-        // Encontrar el fondo seleccionado para obtener su valor
-        const selectedFund = funds.find(fund => fund.id === selectedFundId);
-        if (!selectedFund) {
-            showError('Error: No se pudo encontrar el fondo seleccionado');
-            return;
-        }
-
-        // Calcular las unidades basándose en el dinero invertido
-        const quantity = values.amount / selectedFund.value;
-
-        try {
-            await buyFundMutation.mutateAsync({
-                fundId: selectedFundId,
-                quantity: quantity
-            });
-
-            const fundName = selectedFund.name || 'fondo';
-
-            // Mostrar toast de éxito con información del dinero invertido
-            showSuccess(`Compra realizada con éxito: ${values.amount.toFixed(2)} € en ${fundName} (${quantity.toFixed(4)} unidades)`);
-
-            // Cerrar el dialog
-            setIsBuyOpen(false);
-            setSelectedFundId(null);
-            reset({ amount: 0 });
-
-        } catch (error) {
-            console.error('Error al realizar la compra:', error);
-
-            let errorMessage = 'Error al realizar la compra. Inténtalo de nuevo.';
-
-            if (error && typeof error === 'object' && 'response' in error) {
-                const axiosError = error as unknown;
-                if (axios.isAxiosError(axiosError) && axiosError.response?.data) {
-                    const apiError = axiosError.response.data as { error?: string };
-                    if (apiError.error) {
-                        errorMessage = apiError.error;
-                    }
-                }
-            }
-
-            showError(errorMessage);
-        }
-    };
+    const { register, formState: { errors }, setValue, watch } = formMethods;
 
     const handleViewDetail = (fund: Fund) => {
         showSuccess(`Mostrando detalles de ${fund.name}`);
-    };
-
-    // Opciones para el ActionMenu en la tabla de fondos
-    const getFundsTableMenuOptions = (fund: Fund) => [
-        {
-            id: 'buy',
-            label: 'Comprar',
-            icon: '→',
-            action: () => handleBuyFund(fund)
-        },
-        {
-            id: 'view-detail',
-            label: 'Ver detalle',
-            icon: '👁',
-            action: () => handleViewDetail(fund)
-        }
-    ];
-
-    const paginatedData = useMemo(() => {
-        const startIndex = (localCurrentPage - 1) * localItemsPerPage;
-        const endIndex = startIndex + localItemsPerPage;
-        return sortedData.slice(startIndex, endIndex);
-    }, [sortedData, localCurrentPage, localItemsPerPage]);
-
-    const totalPages = Math.ceil(sortedData.length / localItemsPerPage);
-
-    const handlePageChange = (page: number) => {
-        setLocalCurrentPage(page);
-    };
-
-    const handleItemsPerPageChange = (itemsPerPage: number) => {
-        setLocalCurrentPage(1);
-        setLocalItemsPerPage(itemsPerPage);
     };
 
     if (loading) {
@@ -182,156 +100,152 @@ export const FundsTable: React.FC = () => {
         );
     }
 
-    // Obtener el valor del fondo seleccionado para pasarlo al Dialog
-    const selectedFund = selectedFundId ? funds.find(fund => fund.id === selectedFundId) : null;
-
     return (
         <div className={styles.tableContainer}>
-            <div className={styles.header}>
-                <h2 className={styles.title}>Listado de Fondos</h2>
-                <p className={styles.subtitle}>{totalFunds} fondos disponibles</p>
-            </div>
+            <div className={styles.contentWrapper}>
+                <div className={styles.header}>
+                    <h2 className={styles.title}>Listado de Fondos</h2>
+                    <p className={styles.subtitle}>{totalFunds} fondos disponibles</p>
+                </div>
 
-            <div className={styles.tableWrapper}>
-                <table className={styles.table} role="table" aria-label="Tabla de fondos de inversión">
-                    <caption className={styles.tableCaption}>
-                        Listado de {totalFunds} fondos de inversión con información de rentabilidad y características
-                    </caption>
-                    <thead>
-                        <tr role="row">
-                            {tableColumns.map((column, index) => (
-                                <th
-                                    key={column.key}
-                                    className={styles.headerCell}
-                                    scope="col"
-                                    role="columnheader"
-                                    aria-sort={
-                                        column.sortable && column.sortKey && sortState.column === column.sortKey
-                                            ? sortState.direction === 'asc'
-                                                ? 'ascending'
-                                                : sortState.direction === 'desc'
-                                                    ? 'descending'
-                                                    : 'none'
-                                            : column.sortable ? 'none' : undefined
-                                    }
-                                >
-                                    {column.sortable && column.sortKey ? (
-                                        <button
-                                            className={styles.sortableHeader}
-                                            onClick={() => handleSort(column.sortKey!)}
-                                            aria-label={`${column.title}${column.subtitle ? ` (${column.subtitle})` : ''}. ${sortState.column === column.sortKey
+                <div className={styles.tableWrapper}>
+                    <table className={styles.table} role="table" aria-label="Tabla de fondos de inversión">
+                        <caption className={styles.tableCaption}>
+                            Listado de {totalFunds} fondos de inversión con información de rentabilidad y características
+                        </caption>
+                        <thead>
+                            <tr role="row">
+                                {tableColumns.map((column, index) => (
+                                    <th
+                                        key={column.key}
+                                        className={styles.headerCell}
+                                        scope="col"
+                                        role="columnheader"
+                                        aria-sort={
+                                            column.sortable && column.sortKey && sortState.column === column.sortKey
                                                 ? sortState.direction === 'asc'
-                                                    ? 'Actualmente ordenado ascendente. Haz clic para ordenar descendente'
+                                                    ? 'ascending'
                                                     : sortState.direction === 'desc'
-                                                        ? 'Actualmente ordenado descendente. Haz clic para quitar ordenación'
-                                                        : 'Haz clic para ordenar ascendente'
-                                                : 'Haz clic para ordenar ascendente'
-                                                }`}
-                                        >
+                                                        ? 'descending'
+                                                        : 'none'
+                                                : column.sortable ? 'none' : undefined
+                                        }
+                                    >
+                                        {column.sortable && column.sortKey ? (
+                                            <button
+                                                className={styles.sortableHeader}
+                                                onClick={() => handleSort(column.sortKey!)}
+                                                aria-label={`${column.title}${column.subtitle ? ` (${column.subtitle})` : ''}. ${sortState.column === column.sortKey
+                                                    ? sortState.direction === 'asc'
+                                                        ? 'Actualmente ordenado ascendente. Haz clic para ordenar descendente'
+                                                        : sortState.direction === 'desc'
+                                                            ? 'Actualmente ordenado descendente. Haz clic para quitar ordenación'
+                                                            : 'Haz clic para ordenar ascendente'
+                                                    : 'Haz clic para ordenar ascendente'
+                                                    }`}
+                                            >
+                                                <div className={styles.headerContent}>
+                                                    <span className={styles.headerTitle}>{column.title}</span>
+                                                    {column.subtitle && (
+                                                        <span className={styles.headerSubtitle}>{column.subtitle}</span>
+                                                    )}
+                                                </div>
+                                                <SortIcon
+                                                    direction={sortState.column === column.sortKey ? sortState.direction : null}
+                                                />
+                                            </button>
+                                        ) : (
                                             <div className={styles.headerContent}>
                                                 <span className={styles.headerTitle}>{column.title}</span>
                                                 {column.subtitle && (
                                                     <span className={styles.headerSubtitle}>{column.subtitle}</span>
                                                 )}
                                             </div>
-                                            <SortIcon
-                                                direction={sortState.column === column.sortKey ? sortState.direction : null}
-                                            />
-                                        </button>
-                                    ) : (
-                                        <div className={styles.headerContent}>
-                                            <span className={styles.headerTitle}>{column.title}</span>
-                                            {column.subtitle && (
-                                                <span className={styles.headerSubtitle}>{column.subtitle}</span>
-                                            )}
-                                        </div>
-                                    )}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                        {paginatedData.map((fund, rowIndex) => (
-                            <tr key={fund.id} className={styles.row} role="row">
-                                <td className={styles.cell} role="gridcell">
-                                    <div className={styles.nameCell}>
-                                        <span className={styles.name}>{fund.name}</span>
-                                        <span className={styles.isin} aria-label="ISIN no disponible">-</span>
-                                    </div>
-                                </td>
-                                <td className={styles.cell} role="gridcell" aria-label="Tipo no disponible">-</td>
-                                <td className={styles.cell} role="gridcell">{fund.currency}</td>
-                                <td className={styles.cell} role="gridcell">{fund.category}</td>
-                                <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Valor liquidativo: ${fund.value.toFixed(2)}`}>
-                                        {fund.value.toFixed(2)}
-                                    </span>
-                                </td>
-                                <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 2025: ${fund.profitability.YTD.toFixed(2)}`}>
-                                        {fund.profitability.YTD.toFixed(2)}
-                                    </span>
-                                </td>
-                                <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 1 año: ${fund.profitability.oneYear.toFixed(2)}`}>
-                                        {fund.profitability.oneYear.toFixed(2)}
-                                    </span>
-                                </td>
-                                <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 3 años: ${fund.profitability.threeYears.toFixed(2)}`}>
-                                        {fund.profitability.threeYears.toFixed(2)}
-                                    </span>
-                                </td>
-                                <td className={styles.cell} role="gridcell">
-                                    <span aria-label={`Rentabilidad 5 años: ${fund.profitability.fiveYears.toFixed(2)}`}>
-                                        {fund.profitability.fiveYears.toFixed(2)}
-                                    </span>
-                                </td>
-                                <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
-                                <td className={styles.cell} role="gridcell" aria-label="Nivel de riesgo no disponible">-</td>
-                                <td className={styles.cell} role="gridcell">
-                                    <ActionMenu
-                                        fund={fund}
-                                        options={getFundsTableMenuOptions(fund)}
-                                    />
-                                </td>
+                                        )}
+                                    </th>
+                                ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody role="rowgroup">
+                            {paginatedData.map((fund, rowIndex) => (
+                                <tr key={fund.id} className={styles.row} role="row">
+                                    <td className={styles.cell} role="gridcell">
+                                        <div className={styles.nameCell}>
+                                            <span className={styles.name}>{fund.name}</span>
+                                            <span className={styles.isin} aria-label="ISIN no disponible">-</span>
+                                        </div>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell" aria-label="Tipo no disponible">-</td>
+                                    <td className={styles.cell} role="gridcell">{fund.currency}</td>
+                                    <td className={styles.cell} role="gridcell">{fund.category}</td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <span aria-label={`Valor liquidativo: ${formatNumber(fund.value)}`}>
+                                            {formatNumber(fund.value)}
+                                        </span>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <span aria-label={`Rentabilidad 2025: ${formatNumber(fund.profitability.YTD)}`}>
+                                            {formatNumber(fund.profitability.YTD)}
+                                        </span>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <span aria-label={`Rentabilidad 1 año: ${formatNumber(fund.profitability.oneYear)}`}>
+                                            {formatNumber(fund.profitability.oneYear)}
+                                        </span>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <span aria-label={`Rentabilidad 3 años: ${formatNumber(fund.profitability.threeYears)}`}>
+                                            {formatNumber(fund.profitability.threeYears)}
+                                        </span>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <span aria-label={`Rentabilidad 5 años: ${formatNumber(fund.profitability.fiveYears)}`}>
+                                            {formatNumber(fund.profitability.fiveYears)}
+                                        </span>
+                                    </td>
+                                    <td className={styles.cell} role="gridcell" aria-label="TER no disponible">-</td>
+                                    <td className={styles.cell} role="gridcell" aria-label="Nivel de riesgo no disponible">-</td>
+                                    <td className={styles.cell} role="gridcell">
+                                        <ActionMenu
+                                            fund={fund}
+                                            options={createFundsTableMenuOptions(fund, handleBuyFund, handleViewDetail)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={sortedData.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                />
+
+                <Dialog
+                    isOpen={isBuyOpen}
+                    title="Comprar fondo"
+                    onClose={handleCloseBuy}
+                    onSubmit={formMethods.handleSubmit(handleBuySubmit)}
+                    register={register}
+                    errors={errors}
+                    isSubmitting={isSubmitting}
+                    setValue={setValue}
+                    watch={watch}
+                    fundValue={selectedFund?.value || 0}
+                />
+
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    isVisible={toast.isVisible}
+                    onClose={hideToast}
+                />
             </div>
-
-            <Pagination
-                currentPage={localCurrentPage}
-                totalPages={totalPages}
-                totalItems={sortedData.length}
-                itemsPerPage={localItemsPerPage}
-                onPageChange={handlePageChange}
-                onItemsPerPageChange={handleItemsPerPageChange}
-            />
-
-            <Dialog
-                isOpen={isBuyOpen}
-                title="Comprar fondo"
-                onClose={() => {
-                    setIsBuyOpen(false);
-                    setSelectedFundId(null);
-                }}
-                onSubmit={handleSubmit(handleBuySubmit)}
-                register={register}
-                errors={errors}
-                isSubmitting={buyFundMutation.isPending}
-                setValue={setValue}
-                watch={watch}
-                fundValue={selectedFund?.value || 0}
-            />
-
-            <Toast
-                message={toast.message}
-                type={toast.type}
-                isVisible={toast.isVisible}
-                onClose={hideToast}
-            />
         </div>
     );
 };
