@@ -34,7 +34,8 @@ export const usePortfolioCategories = (portfolio: PortfolioItem[], funds: Fund[]
         return Object.entries(categorizedPortfolio)
             .sort(([categoryA], [categoryB]) =>
                 getCategoryDisplayName(categoryA).localeCompare(getCategoryDisplayName(categoryB), 'es')
-            );
+            )
+            .map(([category]) => category);
     }, [categorizedPortfolio]);
 
     return {
