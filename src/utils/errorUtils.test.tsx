@@ -12,8 +12,16 @@ describe('errorUtils', () => {
             error: 'Error específico del API'
           },
           status: 400,
-          statusText: 'Bad Request'
-        }
+          statusText: 'Bad Request',
+          headers: {},
+          config: {
+            headers: {} as any
+          } as any,
+          request: {}
+        },
+        toJSON: vi.fn(),
+        name: 'AxiosError',
+        message: 'Error'
       } as AxiosError
 
       vi.spyOn(axios, 'isAxiosError').mockReturnValue(true)
@@ -30,8 +38,16 @@ describe('errorUtils', () => {
         response: {
           data: {},
           status: 500,
-          statusText: 'Internal Server Error'
-        }
+          statusText: 'Internal Server Error',
+          headers: {},
+          config: {
+            headers: {} as any
+          } as any,
+          request: {}
+        },
+        toJSON: vi.fn(),
+        name: 'AxiosError',
+        message: 'Error'
       } as AxiosError
 
       vi.spyOn(axios, 'isAxiosError').mockReturnValue(true)
@@ -50,11 +66,14 @@ describe('errorUtils', () => {
       expect(result).toBe(customDefault)
     })
 
-    it('debería devolver mensaje por defecto para error Axios sin response', () => {
+    it('debería manejar AxiosError sin response', () => {
       const mockAxiosError = {
         isAxiosError: true,
-        response: undefined
-      } as AxiosError
+        response: undefined,
+        toJSON: vi.fn(),
+        name: 'AxiosError',
+        message: 'Network Error'
+      } as unknown as AxiosError
 
       vi.spyOn(axios, 'isAxiosError').mockReturnValue(true)
 

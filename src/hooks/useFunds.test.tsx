@@ -2,18 +2,18 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useFunds } from './useFunds'
 import axios from 'axios'
-import { vi } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import React from 'react'
 
 vi.mock('axios')
-const mockedAxios = vi.mocked(axios)
+const mockedAxios = axios as any
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         retry: false,
-        cacheTime: 0,
+        gcTime: 0,
       },
     },
   })
@@ -34,7 +34,7 @@ describe('useFunds Hook', () => {
 
   describe('Estados básicos del hook', () => {
     it('debería devolver estado inicial de loading', () => {
-      mockedAxios.get.mockImplementation(() => new Promise(() => { }))
+      mockedAxios.get = vi.fn().mockImplementation(() => new Promise(() => { }))
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -87,7 +87,7 @@ describe('useFunds Hook', () => {
         }
       }
 
-      mockedAxios.get.mockResolvedValueOnce(mockResponse)
+      mockedAxios.get = vi.fn().mockResolvedValueOnce(mockResponse)
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -104,7 +104,7 @@ describe('useFunds Hook', () => {
 
     it('debería manejar errores correctamente cuando la petición falla', async () => {
       const mockError = new Error('Error de conexión')
-      mockedAxios.get.mockRejectedValueOnce(mockError)
+      mockedAxios.get = vi.fn().mockRejectedValueOnce(mockError)
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -132,7 +132,7 @@ describe('useFunds Hook', () => {
         }
       }
 
-      mockedAxios.get.mockResolvedValueOnce(mockResponse)
+      mockedAxios.get = vi.fn().mockResolvedValueOnce(mockResponse)
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -152,7 +152,7 @@ describe('useFunds Hook', () => {
         data: {}
       }
 
-      mockedAxios.get.mockResolvedValueOnce(mockResponse)
+      mockedAxios.get = vi.fn().mockResolvedValueOnce(mockResponse)
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -174,7 +174,7 @@ describe('useFunds Hook', () => {
         }
       }
 
-      mockedAxios.get.mockResolvedValue(mockResponse)
+      mockedAxios.get = vi.fn().mockResolvedValue(mockResponse)
 
       const { result } = renderHook(() => useFunds(), {
         wrapper: createWrapper(),
@@ -185,7 +185,7 @@ describe('useFunds Hook', () => {
       })
 
       vi.clearAllMocks()
-      mockedAxios.get.mockResolvedValueOnce(mockResponse)
+      mockedAxios.get = vi.fn().mockResolvedValueOnce(mockResponse)
 
       await result.current.refetch()
 

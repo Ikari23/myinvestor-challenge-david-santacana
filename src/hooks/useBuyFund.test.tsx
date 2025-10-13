@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { vi } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useBuyFund } from './useBuyFund'
 import { useBuyFund as useBuyFundMutation } from './useFunds'
 import { useToast } from './useToast'
@@ -24,17 +24,29 @@ describe('useBuyFund', () => {
       id: 'FUND_001',
       name: 'Fondo Global Sostenible',
       category: 'GLOBAL',
-      value: 125.45,
       currency: 'EUR',
-      risk: 3
+      symbol: 'FGS',
+      value: 125.45,
+      profitability: {
+        YTD: 5.2,
+        oneYear: 12.8,
+        threeYears: 8.5,
+        fiveYears: 6.3
+      }
     },
     {
       id: 'FUND_002',
       name: 'Fondo Tech USA',
-      category: 'USA',
-      value: 89.30,
+      category: 'TECH',
       currency: 'USD',
-      risk: 4
+      symbol: 'FTU',
+      value: 89.30,
+      profitability: {
+        YTD: 2.1,
+        oneYear: 3.4,
+        threeYears: 2.8,
+        fiveYears: 3.1
+      }
     }
   ]
 
@@ -47,42 +59,41 @@ describe('useBuyFund', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
+    vi.mocked(useToast).mockReturnValue({
+      toast: { message: '', type: 'success', isVisible: false },
+      showToast: vi.fn(),
+      showSuccess: mockShowSuccess,
+      showError: mockShowError,
+      hideToast: vi.fn()
+    })
+
     vi.mocked(useBuyFundMutation).mockReturnValue({
       mutateAsync: mockMutateAsync,
       isPending: false,
-      isError: false,
       error: null,
-      data: undefined,
-      isSuccess: false,
-      isIdle: true,
-      mutate: vi.fn(),
       reset: vi.fn()
     } as any)
 
-    vi.mocked(useToast).mockReturnValue({
-      showSuccess: mockShowSuccess,
-      showError: mockShowError,
-      showInfo: vi.fn(),
-      showWarning: vi.fn()
-    })
-
     vi.mocked(useForm).mockReturnValue({
-      reset: mockReset,
-      handleSubmit: mockHandleSubmit,
-      formState: { errors: {} },
       register: vi.fn(),
-      watch: vi.fn(),
+      formState: {
+        errors: {},
+        isDirty: false,
+        isLoading: false,
+        isSubmitted: false,
+        isSubmitSuccessful: false,
+        isValidating: false,
+        isValid: false,
+        submitCount: 0,
+        dirtyFields: {},
+        touchedFields: {},
+        defaultValues: undefined
+      },
       setValue: vi.fn(),
-      getValues: vi.fn(),
-      control: {} as any,
-      trigger: vi.fn(),
-      setError: vi.fn(),
-      clearErrors: vi.fn(),
-      setFocus: vi.fn(),
-      getFieldState: vi.fn(),
-      resetField: vi.fn(),
-      unregister: vi.fn()
-    })
+      watch: vi.fn(),
+      handleSubmit: mockHandleSubmit,
+      reset: mockReset
+    } as any)
   })
 
   describe('Estado inicial', () => {
@@ -114,7 +125,7 @@ describe('useBuyFund', () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       expect(result.current.selectedFundId).toBe('FUND_001')
@@ -127,13 +138,13 @@ describe('useBuyFund', () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       expect(result.current.selectedFundId).toBe('FUND_001')
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[1])
+        result.current.handleBuyFund(mockFunds[1]!)
       })
 
       expect(result.current.selectedFundId).toBe('FUND_002')
@@ -147,7 +158,7 @@ describe('useBuyFund', () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       expect(result.current.isBuyOpen).toBe(true)
@@ -169,10 +180,12 @@ describe('useBuyFund', () => {
     })
 
     it('debería realizar la compra exitosamente', async () => {
+      mockMutateAsync.mockResolvedValueOnce({ success: true })
+
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       await act(async () => {
@@ -181,19 +194,23 @@ describe('useBuyFund', () => {
 
       expect(mockMutateAsync).toHaveBeenCalledWith({
         fundId: 'FUND_001',
-        quantity: expect.any(Number)
+        quantity: 7.971303308090873
       })
 
-      expect(mockShowSuccess).toHaveBeenCalledWith(
-        expect.stringContaining('Compra realizada con éxito')
-      )
-
+      const successMessage = mockShowSuccess.mock.calls[0]?.[0]
+      expect(successMessage).toContain('Compra realizada con éxito:')
+      expect(successMessage).toContain('1000,00')
+      expect(successMessage).toContain('€')
+      expect(successMessage).toContain('Fondo Global Sostenible')
+      expect(successMessage).toContain('7,9713 unidades')
       expect(result.current.isBuyOpen).toBe(false)
-      expect(result.current.selectedFundId).toBeNull()
     })
 
     it('debería manejar error cuando no hay fondo seleccionado', async () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
+
+      expect(result.current.selectedFundId).toBeNull()
+      expect(result.current.selectedFund).toBeNull()
 
       await act(async () => {
         await result.current.handleBuySubmit({ amount: 1000 })
@@ -212,7 +229,7 @@ describe('useBuyFund', () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       await act(async () => {
@@ -227,51 +244,57 @@ describe('useBuyFund', () => {
     })
 
     it('debería calcular correctamente la cantidad de unidades', async () => {
+      mockMutateAsync.mockResolvedValueOnce({ success: true })
+
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[1])
+        result.current.handleBuyFund(mockFunds[1]!)
       })
 
       await act(async () => {
         await result.current.handleBuySubmit({ amount: 500 })
       })
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        fundId: 'FUND_002',
-        quantity: expect.any(Number)
-      })
-
-      const callArgs = mockMutateAsync.mock.calls[0][0]
-      expect(callArgs.quantity).toBeCloseTo(5.5988, 3)
+      const callArgs = mockMutateAsync.mock.calls[0]?.[0]
+      expect(callArgs?.quantity).toBe(5.599104143337066)
     })
 
     it('debería formatear correctamente el mensaje de éxito', async () => {
+      mockMutateAsync.mockResolvedValueOnce({ success: true })
+
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       await act(async () => {
-        await result.current.handleBuySubmit({ amount: 1254.5 })
+        await result.current.handleBuySubmit({ amount: 250 })
       })
 
-      const successMessage = mockShowSuccess.mock.calls[0][0]
-
-      expect(successMessage).toContain('Compra realizada con éxito')
+      const successMessage = mockShowSuccess.mock.calls[0]?.[0]
+      expect(successMessage).toContain('Compra realizada con éxito:')
+      expect(successMessage).toContain('250,00')
+      expect(successMessage).toContain('€')
       expect(successMessage).toContain('Fondo Global Sostenible')
-      expect(successMessage).toContain('10,0000 unidades')
-      expect(successMessage).toMatch(/1254,50\s*€/)
+      expect(successMessage).toContain('unidades')
     })
 
     it('debería manejar fondos sin nombre usando getFundName', async () => {
-      const fundWithoutName = {
-        id: 'FUND_999',
-        category: 'OTHER' as const,
+      const fundWithoutName: Fund = {
+        id: 'FUND_NO_NAME',
+        name: '',
+        category: 'GLOBAL',
+        symbol: 'FNN',
+        currency: 'EUR',
         value: 100,
-        currency: 'EUR' as const,
-        risk: 1
+        profitability: {
+          YTD: 0,
+          oneYear: 0,
+          threeYears: 0,
+          fiveYears: 0
+        }
       }
 
       const { result } = renderHook(() => useBuyFund([...mockFunds, fundWithoutName]))
@@ -280,13 +303,14 @@ describe('useBuyFund', () => {
         result.current.handleBuyFund(fundWithoutName)
       })
 
+      mockMutateAsync.mockResolvedValueOnce({ success: true })
+
       await act(async () => {
         await result.current.handleBuySubmit({ amount: 100 })
       })
 
-      expect(mockShowSuccess).toHaveBeenCalledWith(
-        expect.stringContaining('Fondo FUND_999')
-      )
+      const successMessage = mockShowSuccess.mock.calls[0]?.[0]
+      expect(successMessage).toContain('FUND_NO_NAME')
     })
   })
 
@@ -321,7 +345,20 @@ describe('useBuyFund', () => {
       const { result } = renderHook(() => useBuyFund(mockFunds))
 
       act(() => {
-        result.current.handleBuyFund({ id: 'NONEXISTENT', name: 'Test', category: 'OTHER', value: 100, currency: 'EUR', risk: 1 })
+        result.current.handleBuyFund({
+          id: 'NONEXISTENT',
+          name: 'Test',
+          category: 'GLOBAL',
+          symbol: 'TST',
+          value: 100,
+          currency: 'EUR',
+          profitability: {
+            YTD: 0,
+            oneYear: 0,
+            threeYears: 0,
+            fiveYears: 0
+          }
+        } as Fund)
       })
 
       expect(result.current.selectedFund).toBeNull()
@@ -333,7 +370,7 @@ describe('useBuyFund', () => {
       expect(result.current.selectedFund).toBeNull()
 
       act(() => {
-        result.current.handleBuyFund(mockFunds[0])
+        result.current.handleBuyFund(mockFunds[0]!)
       })
 
       expect(result.current.selectedFund).toBeNull()

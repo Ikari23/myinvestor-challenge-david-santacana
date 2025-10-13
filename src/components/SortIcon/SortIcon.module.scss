@@ -29,7 +29,6 @@
     fill: $gray-800;
 }
 
-// Show icon more clearly on hover
 .sortableHeader:hover .sortIcon {
     opacity: 0.8;
 
@@ -39,17 +38,14 @@
     }
 }
 
-// When sorting is active, make it more visible
 .sortIcon:has(.active) {
     opacity: 1;
 }
 
-// Fallback for browsers that don't support :has()
 .active {
     opacity: 1;
 }
 
-// Desktop styles
 @media (min-width: $tablet) {
     .sortIcon {
         opacity: 0.6;

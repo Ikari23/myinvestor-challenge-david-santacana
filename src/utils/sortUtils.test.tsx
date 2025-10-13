@@ -75,9 +75,9 @@ describe('sortUtils', () => {
 
       const sorted = sortByName(items)
 
-      expect(sorted[0].name).toBe('Alpha')
-      expect(sorted[1].name).toBe('beta')
-      expect(sorted[2].name).toBe('zebra')
+      expect(sorted[0]?.name).toBe('Alpha')
+      expect(sorted[1]?.name).toBe('beta')
+      expect(sorted[2]?.name).toBe('zebra')
     })
 
     it('debería no mutar el array original', () => {

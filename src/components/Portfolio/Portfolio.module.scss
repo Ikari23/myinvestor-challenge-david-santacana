@@ -196,7 +196,6 @@
     }
 }
 
-// Estados de carga y error (reutilizando estilos de FundsTable)
 .loadingContainer,
 .errorContainer,
 .emptyContainer {
@@ -423,7 +422,6 @@
     align-items: center;
     margin-left: $spacing-3;
 
-    // Hacer el botón más grande en la cartera
     .triggerButton {
         width: 48px;
         height: 48px;

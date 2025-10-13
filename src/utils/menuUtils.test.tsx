@@ -4,10 +4,11 @@ import type { Fund } from '../types/funds'
 
 const mockFund: Fund = {
   id: '1',
-  name: 'Test Fund',
+  name: 'Fondo Global Sostenible',
   category: 'GLOBAL',
+  symbol: 'FGS',
   currency: 'EUR',
-  value: 100,
+  value: 125.45,
   profitability: {
     YTD: 5.2,
     oneYear: 12.8,
@@ -49,7 +50,8 @@ describe('menuUtils', () => {
       const onViewDetail = vi.fn()
 
       const options = createFundsTableMenuOptions(mockFund, onBuy, onViewDetail)
-      options[0].action()
+      expect(options[0]?.action).toBeDefined()
+      options[0]?.action()
 
       expect(onBuy).toHaveBeenCalledWith(mockFund)
       expect(onBuy).toHaveBeenCalledTimes(1)
@@ -60,7 +62,8 @@ describe('menuUtils', () => {
       const onViewDetail = vi.fn()
 
       const options = createFundsTableMenuOptions(mockFund, onBuy, onViewDetail)
-      options[1].action()
+      expect(options[1]?.action).toBeDefined()
+      options[1]?.action()
 
       expect(onViewDetail).toHaveBeenCalledWith(mockFund)
       expect(onViewDetail).toHaveBeenCalledTimes(1)
@@ -115,16 +118,20 @@ describe('menuUtils', () => {
 
       const options = createPortfolioMenuOptions(mockPortfolioFund, actions)
 
-      options[0].action()
+      expect(options[0]?.action).toBeDefined()
+      options[0]?.action()
       expect(actions.onBuy).toHaveBeenCalledWith(mockPortfolioFund)
 
-      options[1].action()
+      expect(options[1]?.action).toBeDefined()
+      options[1]?.action()
       expect(actions.onSell).toHaveBeenCalledWith(mockPortfolioFund)
 
-      options[2].action()
+      expect(options[2]?.action).toBeDefined()
+      options[2]?.action()
       expect(actions.onTransfer).toHaveBeenCalledWith(mockPortfolioFund)
 
-      options[3].action()
+      expect(options[3]?.action).toBeDefined()
+      options[3]?.action()
       expect(actions.onViewDetail).toHaveBeenCalledWith(mockPortfolioFund)
 
       expect(actions.onBuy).toHaveBeenCalledTimes(1)

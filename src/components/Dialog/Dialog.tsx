@@ -34,9 +34,7 @@ export const Dialog: React.FC<DialogProps> = ({
     const [displayValue, setDisplayValue] = useState('');
 
     const parseEuroValue = (value: string): number => {
-        // Permitir solo números, puntos y comas
         const cleanValue = value.replace(/[^\d,.-]/g, '');
-        // Reemplazar coma por punto para el parsing
         const normalizedValue = cleanValue.replace(',', '.');
         const numValue = parseFloat(normalizedValue);
         return isNaN(numValue) ? 0 : numValue;
@@ -61,42 +59,33 @@ export const Dialog: React.FC<DialogProps> = ({
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
 
-        // Permitir campo vacío
         if (inputValue === '') {
             setDisplayValue('');
             setValue('amount', 0);
             return;
         }
 
-        // Mostrar exactamente lo que escribe el usuario
         setDisplayValue(inputValue);
 
-        // Parsear solo para las validaciones, sin modificar el display
         const numericValue = parseEuroValue(inputValue);
         setValue('amount', numericValue, { shouldValidate: true });
     };
 
     const handleInputBlur = () => {
-        // Solo formatear si el valor es válido y no excede límites
         const currentValue = parseEuroValue(displayValue);
 
-        // Solo formatear valores válidos y dentro del rango permitido
         if (currentValue > 0 && currentValue <= 10000) {
             setDisplayValue(formatEuroValue(currentValue));
         }
-        // Si el valor es mayor a 10000 o inválido, mantener lo que escribió el usuario
     };
 
     const handleInputFocus = () => {
-        // Al hacer focus, mostrar solo el número sin formato para facilitar edición
         const currentValue = parseEuroValue(displayValue);
         if (currentValue > 0 && displayValue.includes('€')) {
-            // Solo quitar formato si actualmente está formateado
             setDisplayValue(currentValue.toString().replace('.', ','));
         }
     };
 
-    // Limpiar el campo cuando se abre el dialog
     useEffect(() => {
         if (isOpen) {
             setDisplayValue('');
@@ -164,7 +153,6 @@ export const Dialog: React.FC<DialogProps> = ({
 
     const currentAmount = watch('amount') || 0;
 
-    // Verificar si el valor del input es válido
     const isValidAmount = currentAmount > 0 && currentAmount <= 10000 && !errors.amount;
 
     return (
@@ -190,7 +178,6 @@ export const Dialog: React.FC<DialogProps> = ({
                                 onBlur={handleInputBlur}
                                 onFocus={handleInputFocus}
                             />
-                            {/* Campo oculto para react-hook-form con las validaciones */}
                             <input
                                 type="hidden"
                                 {...register('amount', {
@@ -220,7 +207,6 @@ export const Dialog: React.FC<DialogProps> = ({
                             </span>
                         )}
 
-                        {/* Mostrar solo precio por unidad */}
                         {fundValue > 0 && (
                             <div className={styles.calculation}>
                                 <span className={styles.calculationText}>

@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
@@ -31,6 +32,7 @@ export default defineConfig({
             },
         },
     },
+    // @ts-ignore
     test: {
         globals: true,
         environment: 'jsdom',
@@ -44,31 +46,25 @@ export default defineConfig({
                 'src/test/setup.ts',
                 '**/*.d.ts',
                 '**/coverage/**',
-                'src/main.tsx', // Entry point
-                'server/**', // Backend files
+                'src/main.tsx',
+                'server/**',
                 'public/**',
-                'src/styles/**', // Global styles
-                'src/types/**', // Type definitions
-                // Tests existentes
+                'src/styles/**',
+                'src/types/**',
                 '**/*.test.tsx',
                 '**/*.test.ts',
                 '**/*.spec.tsx',
                 '**/*.spec.ts',
-                // Componente raíz que solo hace routing
                 'src/App.tsx',
-                // Archivos de configuración que existen en el proyecto
                 'vite.config.ts',
                 'tsconfig.json',
                 'package.json',
                 '.eslintrc.js',
                 'eslintignore',
-                // Archivos de build
                 'dist/**',
-                // Archivos de documentación
                 '*.md',
                 'INSTRUCTIONS.md',
                 'API.md',
-                // Archivo de configuración de Yarn específico del proyecto
                 '.yarn/**'
             ],
             thresholds: {
@@ -78,7 +74,6 @@ export default defineConfig({
                     lines: 80,
                     statements: 80,
                 },
-                // Umbrales específicos para archivos críticos
                 'src/utils/**': {
                     branches: 85,
                     functions: 85,

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { SortIcon } from './SortIcon'
 import type { SortDirection } from '../../types/funds'
+import { describe, it, expect } from 'vitest'
 
 describe('SortIcon Component', () => {
   describe('Renderizado básico', () => {

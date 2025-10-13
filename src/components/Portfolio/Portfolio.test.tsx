@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Portfolio } from './Portfolio';
+import type { Fund } from '../../types/funds';
 
 vi.mock('../../hooks/useFunds', () => ({
   usePortfolio: vi.fn(),
@@ -77,20 +78,34 @@ const mockPortfolioData = [
   }
 ];
 
-const mockFundsData = [
+const mockFundsData: Fund[] = [
   {
     id: '1',
-    name: 'Fondo Renta Variable',
-    category: 'Renta Variable',
+    name: 'Fondo A',
+    category: 'GLOBAL',
+    symbol: 'FA',
     currency: 'EUR',
-    value: 100
+    value: 100,
+    profitability: {
+      YTD: 5.2,
+      oneYear: 12.8,
+      threeYears: 8.5,
+      fiveYears: 6.3
+    }
   },
   {
     id: '2',
-    name: 'Fondo Renta Fija',
-    category: 'Renta Fija',
-    currency: 'EUR',
-    value: 100
+    name: 'Fondo B',
+    category: 'TECH',
+    symbol: 'FB',
+    currency: 'USD',
+    value: 200,
+    profitability: {
+      YTD: 2.1,
+      oneYear: 3.4,
+      threeYears: 2.8,
+      fiveYears: 3.1
+    }
   }
 ];
 
@@ -100,6 +115,7 @@ describe('Portfolio Component', () => {
 
     mockUseToast.mockReturnValue({
       toast: { message: '', type: 'success', isVisible: false },
+      showToast: vi.fn(),
       showSuccess: vi.fn(),
       showError: vi.fn(),
       hideToast: vi.fn()
@@ -261,6 +277,7 @@ describe('Portfolio Component', () => {
     it('debería mostrar Toast cuando isVisible es true', () => {
       mockUseToast.mockReturnValue({
         toast: { message: 'Operación exitosa', type: 'success', isVisible: true },
+        showToast: vi.fn(),
         showSuccess: vi.fn(),
         showError: vi.fn(),
         hideToast: vi.fn()
@@ -291,6 +308,7 @@ describe('Portfolio Component', () => {
     it('debería NO mostrar Toast cuando isVisible es false', () => {
       mockUseToast.mockReturnValue({
         toast: { message: 'Mensaje oculto', type: 'success', isVisible: false },
+        showToast: vi.fn(),
         showSuccess: vi.fn(),
         showError: vi.fn(),
         hideToast: vi.fn()

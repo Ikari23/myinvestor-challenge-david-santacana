@@ -9,7 +9,7 @@ export const Navigation: React.FC = () => {
         <nav className={styles.nav}>
             <div className={styles.container}>
                 <div className={styles.brand}>
-                    <h1 className={styles.brandTitle}>MyInvestor</h1>
+                    <span className={styles.brandText}>MyInvestor</span>
                 </div>
 
                 <div className={styles.links}>

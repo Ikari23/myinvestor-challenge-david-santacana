@@ -2,7 +2,6 @@ export type { Fund } from '../../server/data/funds';
 
 export type SortDirection = 'asc' | 'desc' | null;
 
-// Sortable column keys based on the required table columns
 export type SortableColumn =
     | 'name'
     | 'currency'

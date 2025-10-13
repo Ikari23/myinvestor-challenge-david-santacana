@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ActionMenu } from './ActionMenu'
-import { vi } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 vi.mock('../../hooks/useClickOutside', () => ({
   useClickOutside: vi.fn()
@@ -129,7 +129,7 @@ describe('ActionMenu Component', () => {
 
       fireEvent.click(screen.getByRole('menuitem', { name: /Comprar/ }))
 
-      expect(mockOptions[0].action).toHaveBeenCalledTimes(1)
+      expect(mockOptions[0]?.action).toHaveBeenCalledTimes(1)
 
       expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     })
@@ -139,14 +139,14 @@ describe('ActionMenu Component', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /Abrir menú de acciones/ }))
       fireEvent.click(screen.getByRole('menuitem', { name: /Comprar/ }))
-      expect(mockOptions[0].action).toHaveBeenCalledTimes(1)
+      expect(mockOptions[0]?.action).toHaveBeenCalledTimes(1)
 
       fireEvent.click(screen.getByRole('button', { name: /Abrir menú de acciones/ }))
       fireEvent.click(screen.getByRole('menuitem', { name: /Ver detalles/ }))
-      expect(mockOptions[1].action).toHaveBeenCalledTimes(1)
+      expect(mockOptions[1]?.action).toHaveBeenCalledTimes(1)
 
-      expect(mockOptions[0].action).toHaveBeenCalledTimes(1)
-      expect(mockOptions[2].action).not.toHaveBeenCalled()
+      expect(mockOptions[0]?.action).toHaveBeenCalledTimes(1)
+      expect(mockOptions[2]?.action).not.toHaveBeenCalled()
     })
   })
 

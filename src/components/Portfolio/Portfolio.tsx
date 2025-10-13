@@ -29,7 +29,6 @@ export const Portfolio: React.FC = () => {
     const loading = portfolioLoading || fundsLoading;
     const error = portfolioError || fundsError;
 
-    // Funciones para las acciones de cartera
     const handleBuy = (fund: { id: string; name: string }) => {
         showSuccess('Funcionalidad de compra');
     };

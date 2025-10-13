@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { Toast, ToastType } from './Toast'
-import { vi } from 'vitest'
+import { Toast, type ToastType } from './Toast'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 const defaultProps = {
   message: 'Test notification',

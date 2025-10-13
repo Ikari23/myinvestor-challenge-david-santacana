@@ -20,7 +20,6 @@ export const usePortfolioCategories = (portfolio: PortfolioItem[], funds: Fund[]
     const categorizedPortfolio = useMemo(() => {
         const grouped = groupPortfolioByCategory(portfolio, funds);
 
-        // Ordenar elementos dentro de cada categoría
         Object.keys(grouped).forEach(category => {
             if (grouped[category]) {
                 grouped[category] = sortByName(grouped[category], (item) => item.name || `Fondo ${item.id}`);

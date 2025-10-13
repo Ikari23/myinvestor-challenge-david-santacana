@@ -55,7 +55,7 @@ export const usePortfolio = () => {
             const response = await axios.get<PortfolioResponse>(`/api/portfolio`);
             return response.data;
         },
-        staleTime: 1000 * 30, // 30 segundos
+        staleTime: 1000 * 30,
     });
 
     const portfolio = data?.data ?? [];
@@ -87,7 +87,7 @@ export const useFunds = () => {
             const response = await axios.get<FundsApiResponse>(`/api/funds?page=1&limit=1000`);
             return response.data;
         },
-        staleTime: 1000 * 60, // 1 min
+        staleTime: 1000 * 60,
     });
 
     const funds = data?.data ?? [];
@@ -118,7 +118,6 @@ export const useBuyFund = () => {
             return response.data;
         },
         onSuccess: () => {
-            // Invalidar queries relacionadas para refrescar datos
             queryClient.invalidateQueries({ queryKey: ['portfolio'] });
         },
         onError: (error) => {

@@ -8,29 +8,44 @@ describe('usePortfolioCategories', () => {
         {
             id: '1',
             name: 'Fondo Renta Fija',
-            category: 'renta-fija',
-            subcategory: 'corporativo',
-            price: 100,
-            minimumAmount: 100,
-            currency: 'EUR'
+            category: 'GLOBAL',
+            symbol: 'FRF',
+            currency: 'EUR',
+            value: 100,
+            profitability: {
+                YTD: 2.1,
+                oneYear: 3.4,
+                threeYears: 2.8,
+                fiveYears: 3.1
+            }
         },
         {
             id: '2',
             name: 'Fondo Renta Variable',
-            category: 'renta-variable',
-            subcategory: 'nacional',
-            price: 150,
-            minimumAmount: 100,
-            currency: 'EUR'
+            category: 'TECH',
+            symbol: 'FRV',
+            currency: 'EUR',
+            value: 150,
+            profitability: {
+                YTD: 5.2,
+                oneYear: 12.8,
+                threeYears: 8.5,
+                fiveYears: 6.3
+            }
         },
         {
             id: '3',
             name: 'Fondo Mixto',
-            category: 'mixto',
-            subcategory: 'conservador',
-            price: 120,
-            minimumAmount: 100,
-            currency: 'EUR'
+            category: 'HEALTH',
+            symbol: 'FM',
+            currency: 'EUR',
+            value: 120,
+            profitability: {
+                YTD: 3.5,
+                oneYear: 7.2,
+                threeYears: 5.8,
+                fiveYears: 4.9
+            }
         }
     ];
 
@@ -58,9 +73,9 @@ describe('usePortfolioCategories', () => {
 
         const { categorizedPortfolio } = result.current;
 
-        expect(categorizedPortfolio).toHaveProperty('renta-fija');
-        expect(categorizedPortfolio).toHaveProperty('renta-variable');
-        expect(categorizedPortfolio).toHaveProperty('mixto');
+        expect(categorizedPortfolio).toHaveProperty('GLOBAL');
+        expect(categorizedPortfolio).toHaveProperty('TECH');
+        expect(categorizedPortfolio).toHaveProperty('HEALTH');
     });
 
     it('debería manejar portfolio vacío', () => {

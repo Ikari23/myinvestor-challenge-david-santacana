@@ -1,6 +1,11 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { FundsTable } from './FundsTable'
-import { vi } from 'vitest'
+import { useFunds } from '../../hooks/useFunds'
+import { useToast } from '../../hooks/useToast'
+import { useBuyFund } from '../../hooks/useBuyFund'
+import { useTableSort } from '../../hooks/useTableSort'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+import type { Fund } from '../../types/funds'
 
 vi.mock('../../hooks/useFunds', () => ({
   useFunds: vi.fn()
@@ -22,11 +27,7 @@ vi.mock('../../hooks/useBuyFund', () => ({
   useBuyFund: vi.fn()
 }))
 
-import { useFunds } from '../../hooks/useFunds'
-import { useToast } from '../../hooks/useToast'
-import { useTableSort } from '../../hooks/useTableSort'
 import { usePagination } from '../../hooks/usePagination'
-import { useBuyFund } from '../../hooks/useBuyFund'
 
 const mockUseFunds = vi.mocked(useFunds)
 const mockUseToast = vi.mocked(useToast)
@@ -39,11 +40,14 @@ const defaultMocks = {
     funds: [],
     loading: false,
     error: null,
-    totalFunds: 0
+    totalFunds: 0,
+    refetch: vi.fn()
   },
   useToast: {
-    toast: { message: '', type: 'success', isVisible: false },
+    toast: { message: '', type: 'success' as const, isVisible: false },
+    showToast: vi.fn(),
     showSuccess: vi.fn(),
+    showError: vi.fn(),
     hideToast: vi.fn()
   },
   useTableSort: {
@@ -62,12 +66,40 @@ const defaultMocks = {
   useBuyFund: {
     isBuyOpen: false,
     isSubmitting: false,
+    selectedFundId: null,
     formMethods: {
       register: vi.fn(),
-      formState: { errors: {} },
+      formState: {
+        errors: {},
+        isDirty: false,
+        isLoading: false,
+        isSubmitted: false,
+        isSubmitSuccessful: false,
+        isValidating: false,
+        isValid: false,
+        submitCount: 0,
+        dirtyFields: {},
+        touchedFields: {},
+        defaultValues: undefined,
+        isSubmitting: false,
+        disabled: false,
+        validatingFields: {},
+        isReady: true
+      },
       setValue: vi.fn(),
       watch: vi.fn(),
-      handleSubmit: vi.fn()
+      handleSubmit: vi.fn(),
+      reset: vi.fn(),
+      getValues: vi.fn(),
+      getFieldState: vi.fn(),
+      setError: vi.fn(),
+      clearErrors: vi.fn(),
+      setFocus: vi.fn(),
+      trigger: vi.fn(),
+      unregister: vi.fn(),
+      control: {} as any,
+      resetField: vi.fn(),
+      subscribe: vi.fn()
     },
     handleBuyFund: vi.fn(),
     handleBuySubmit: vi.fn(),
@@ -92,7 +124,8 @@ describe('FundsTable Component', () => {
         funds: [],
         loading: true,
         error: null,
-        totalFunds: 0
+        totalFunds: 0,
+        refetch: vi.fn()
       })
 
       render(<FundsTable />)
@@ -106,14 +139,19 @@ describe('FundsTable Component', () => {
       mockUseFunds.mockReturnValue({
         funds: [],
         loading: false,
-        error: 'Error al cargar los fondos',
-        totalFunds: 0
+        error: 'Error de conexión',
+        totalFunds: 0,
+        refetch: vi.fn()
       })
 
       render(<FundsTable />)
 
       expect(screen.getByText('Listado de Fondos')).toBeInTheDocument()
-      expect(screen.getByText('❌ Error al cargar los fondos')).toBeInTheDocument()
+      expect(screen.getByText((content, element) => {
+        return element?.tagName === 'P' &&
+          element?.className?.includes('errorText') &&
+          element?.textContent?.includes('Error de conexión') || false
+      })).toBeInTheDocument()
       expect(screen.getByText('Reintentar')).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
     })
@@ -123,7 +161,8 @@ describe('FundsTable Component', () => {
         funds: [],
         loading: false,
         error: null,
-        totalFunds: 0
+        totalFunds: 0,
+        refetch: vi.fn()
       })
 
       render(<FundsTable />)
@@ -136,13 +175,14 @@ describe('FundsTable Component', () => {
 
   describe('Renderizado con datos', () => {
     it('debería renderizar la tabla correctamente cuando hay fondos', () => {
-      const mockFunds = [
+      const mockFunds: Fund[] = [
         {
           id: '1',
           name: 'Fondo Ejemplo 1',
-          category: 'Renta Variable',
+          category: 'GLOBAL',
+          symbol: 'FE1',
           currency: 'EUR',
-          value: 125.50,
+          value: 100.50,
           profitability: {
             YTD: 5.2,
             oneYear: 12.8,
@@ -153,7 +193,8 @@ describe('FundsTable Component', () => {
         {
           id: '2',
           name: 'Fondo Ejemplo 2',
-          category: 'Renta Fija',
+          category: 'TECH',
+          symbol: 'FE2',
           currency: 'USD',
           value: 98.75,
           profitability: {
@@ -169,7 +210,8 @@ describe('FundsTable Component', () => {
         funds: mockFunds,
         loading: false,
         error: null,
-        totalFunds: 2
+        totalFunds: 2,
+        refetch: vi.fn()
       })
 
       mockUseTableSort.mockReturnValue({
@@ -194,65 +236,66 @@ describe('FundsTable Component', () => {
       expect(screen.getByRole('table')).toBeInTheDocument()
       expect(screen.getByText('Fondo Ejemplo 1')).toBeInTheDocument()
       expect(screen.getByText('Fondo Ejemplo 2')).toBeInTheDocument()
-      expect(screen.getByText('Renta Variable')).toBeInTheDocument()
-      expect(screen.getByText('Renta Fija')).toBeInTheDocument()
+      expect(screen.getByText('GLOBAL')).toBeInTheDocument()
+      expect(screen.getByText('TECH')).toBeInTheDocument()
     })
   })
 
   describe('Interacciones', () => {
     it('debería llamar a window.location.reload cuando se hace click en Reintentar', () => {
-      const mockReload = vi.fn()
       Object.defineProperty(window, 'location', {
-        value: {
-          reload: mockReload
-        },
+        value: { reload: vi.fn() },
         writable: true
       })
+
+      const mockReload = window.location.reload as any
 
       mockUseFunds.mockReturnValue({
         funds: [],
         loading: false,
-        error: 'Error al cargar los fondos',
-        totalFunds: 0
+        error: 'Error de conexión',
+        totalFunds: 0,
+        refetch: vi.fn()
       })
 
       render(<FundsTable />)
 
-      const retryButton = screen.getByText('Reintentar')
-      fireEvent.click(retryButton)
+      fireEvent.click(screen.getByText('Reintentar'))
 
       expect(mockReload).toHaveBeenCalled()
     })
 
     it('debería llamar a showSuccess cuando se ejecuta handleViewDetail', () => {
-      const mockShowSuccess = vi.fn()
-
-      const mockFunds = [
-        {
-          id: '1',
-          name: 'Fondo Test',
-          category: 'Renta Variable',
-          currency: 'EUR',
-          value: 125.50,
-          profitability: {
-            YTD: 5.2,
-            oneYear: 12.8,
-            threeYears: 8.5,
-            fiveYears: 6.3
-          }
+      const mockFunds: Fund[] = [{
+        id: '1',
+        name: 'Fondo Test',
+        category: 'GLOBAL',
+        symbol: 'FT',
+        currency: 'EUR',
+        value: 100,
+        profitability: {
+          YTD: 5.2,
+          oneYear: 12.8,
+          threeYears: 8.5,
+          fiveYears: 6.3
         }
-      ]
+      }]
+
+      const mockShowSuccess = vi.fn()
 
       mockUseFunds.mockReturnValue({
         funds: mockFunds,
         loading: false,
         error: null,
-        totalFunds: 1
+        totalFunds: 1,
+        refetch: vi.fn()
       })
 
       mockUseToast.mockReturnValue({
         toast: { message: '', type: 'success', isVisible: false },
+        showToast: vi.fn(),
         showSuccess: mockShowSuccess,
+        showError: vi.fn(),
         hideToast: vi.fn()
       })
 
@@ -271,42 +314,41 @@ describe('FundsTable Component', () => {
         handleItemsPerPageChange: vi.fn()
       })
 
-      vi.mock('../../utils/menuUtils', () => ({
-        createFundsTableMenuOptions: vi.fn((fund, handleBuyFund, handleViewDetail) => {
-          handleViewDetail(fund)
-          return []
-        })
-      }))
-
       render(<FundsTable />)
+
+      const menuButton = screen.getByRole('button', { name: /Abrir menú de acciones/ })
+      fireEvent.click(menuButton)
+
+      const viewDetailOption = screen.getByRole('menuitem', { name: /Ver detalle/ })
+      fireEvent.click(viewDetailOption)
 
       expect(mockShowSuccess).toHaveBeenCalledWith('Mostrando detalles de Fondo Test')
     })
 
     it('debería llamar a handleSort cuando se hace click en un header ordenable', () => {
-      const mockHandleSort = vi.fn()
-
-      const mockFunds = [
-        {
-          id: '1',
-          name: 'Fondo Test',
-          category: 'Renta Variable',
-          currency: 'EUR',
-          value: 125.50,
-          profitability: {
-            YTD: 5.2,
-            oneYear: 12.8,
-            threeYears: 8.5,
-            fiveYears: 6.3
-          }
+      const mockFunds: Fund[] = [{
+        id: '1',
+        name: 'Fondo Test',
+        category: 'GLOBAL',
+        symbol: 'FT',
+        currency: 'EUR',
+        value: 100,
+        profitability: {
+          YTD: 5.2,
+          oneYear: 12.8,
+          threeYears: 8.5,
+          fiveYears: 6.3
         }
-      ]
+      }]
+
+      const mockHandleSort = vi.fn()
 
       mockUseFunds.mockReturnValue({
         funds: mockFunds,
         loading: false,
         error: null,
-        totalFunds: 1
+        totalFunds: 1,
+        refetch: vi.fn()
       })
 
       mockUseTableSort.mockReturnValue({
@@ -326,11 +368,10 @@ describe('FundsTable Component', () => {
 
       render(<FundsTable />)
 
-      const nameHeader = screen.getByText('Nombre').closest('button')
-      if (nameHeader) {
-        fireEvent.click(nameHeader)
-        expect(mockHandleSort).toHaveBeenCalledWith('name')
-      }
+      const nameHeaderButton = screen.getByRole('button', { name: /Nombre \(ISIN\)/ })
+      fireEvent.click(nameHeaderButton)
+
+      expect(mockHandleSort).toHaveBeenCalledWith('name')
     })
   })
 })

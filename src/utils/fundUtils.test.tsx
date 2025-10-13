@@ -1,10 +1,10 @@
 import {
   getFundName,
+  getFundCurrency,
+  groupPortfolioByCategory,
+  getCategoryDisplayName,
   calculateFundQuantity,
   findFundById,
-  getFundCurrency,
-  getCategoryDisplayName,
-  groupPortfolioByCategory,
   calculateCategoryTotal
 } from './fundUtils'
 import { describe, it, expect } from 'vitest'
@@ -13,10 +13,11 @@ import type { Fund } from '../types/funds'
 const mockFunds: Fund[] = [
   {
     id: '1',
-    name: 'Fondo Renta Variable',
+    name: 'Fondo Global Sostenible',
     category: 'GLOBAL',
+    symbol: 'FGS',
     currency: 'EUR',
-    value: 100.50,
+    value: 125.45,
     profitability: {
       YTD: 5.2,
       oneYear: 12.8,
@@ -26,15 +27,16 @@ const mockFunds: Fund[] = [
   },
   {
     id: '2',
-    name: 'Fondo Tecnología',
+    name: 'Fondo Tech USA',
     category: 'TECH',
+    symbol: 'FTU',
     currency: 'USD',
-    value: 200.75,
+    value: 89.30,
     profitability: {
-      YTD: 8.1,
-      oneYear: 15.4,
-      threeYears: 12.2,
-      fiveYears: 10.1
+      YTD: 2.1,
+      oneYear: 3.4,
+      threeYears: 2.8,
+      fiveYears: 3.1
     }
   }
 ]
